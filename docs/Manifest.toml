@@ -59,7 +59,7 @@ uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[deps.ModelWrappers]]
 path = ".."
-uuid = "0794b28a-41a3-4d25-b899-ea4715284853"
+uuid = "44c54197-9f56-47cc-9960-7f2e20bfb0d6"
 version = "0.1.0"
 
 [[deps.NetworkOptions]]

@@ -1,4 +1,3 @@
-" ModelWrappers - Contains useful code to perform inference on algorithms."
 module ModelWrappers
 
 ############################################################################################
@@ -18,6 +17,7 @@ using Random: Random, AbstractRNG, GLOBAL_RNG
 using LinearAlgebra: LinearAlgebra, Diagonal, LowerTriangular, tril!
 using Distributions: Distributions, Distribution, logpdf
 using Bijectors:
+#    Distributions, Distribution, logpdf,
     Bijectors, Bijector, logpdf_with_trans,
     TruncatedBijector, SimplexBijector, CorrBijector, PDBijector
 #!NOTE: These libraries are only relevant for 'Differentiation' files - open to make separate library later on but for now easier to test changes with AD libraries included in a single library.
