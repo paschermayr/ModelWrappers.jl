@@ -34,7 +34,7 @@ DocStringExtensions = "0.8"
 ForwardDiff = "0.10"
 ReverseDiff = "1.12"
 Soss = "0.20"
-StatsBase = "0"
+StatsBase = "0.33"
 UnPack = "1"
 Zygote = "0.6"
 
