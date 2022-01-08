@@ -2,13 +2,15 @@
 
 <!---
 ![logo](docs/src/assets/logo.svg)
-
-[![Documentation, Stable](xxx)](xxx)
-[![Documentation, Latest](xxx)](xxx)
 [![CI](xxx)](xxx)
-[![Codecov](xxx)](xxx)
 [![arXiv article](xxx)](xxx)
+
 -->
+[![Documentation, Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://paschermayr.github.io/ModelWrappers.jl/)
+[![Build Status](https://github.com/paschermayr/ModelWrappers.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/paschermayr/ModelWrappers.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Coverage](https://codecov.io/gh/paschermayr/ModelWrappers.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/paschermayr/ModelWrappers.jl)
+[![ColPrac: Contributor's Guide on Collaborative Practices for Community Packages](https://img.shields.io/badge/ColPrac-Contributor's%20Guide-blueviolet)](https://github.com/SciML/ColPrac)
+
 
 ModelWrappers.jl is a utility package that makes it easier to work with Model parameters stated as (nested) NamedTuples. It handles
 1. flattening/unflattening model parameter fields of arbitrary dimensions.
