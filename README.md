@@ -11,6 +11,7 @@ ModelWrappers.jl is a utility package that makes it easier to work with Model pa
 3. using Automatic Differentation for Model parameter given as a `NamedTuple` for a user specified function, i.e., a log-posterior distribution.
 
 <!---
+
 [BaytesMCMC.jl](xxx)
 [BaytesFilters.jl](xxx)
 [BaytesPMCMC.jl](xxx)
