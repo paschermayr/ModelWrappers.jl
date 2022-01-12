@@ -7,12 +7,19 @@ Functor to calculate 'ℓfunc' and gradient at unconstrained 'θᵤ', including 
 # Fields
 $(TYPEDFIELDS)
 """
-struct Objective{M<:ModelWrapper,D,T<:Tagged}
+struct Objective{M<:ModelWrapper, D, T<:Tagged, F<:Real}
     model::M
     data::D
     tagged::T
-    function Objective(model::M, data::D, tagged::T) where {M<:ModelWrapper,D,T<:Tagged}
-        return new{M,D,T}(model, data, tagged)
+    temperature::BaytesCore.ValueHolder{F}
+    function Objective(
+        model::M,
+        data::D,
+        tagged::T,
+        temperature::BaytesCore.ValueHolder{F} = BaytesCore.ValueHolder(model.info.flattendefault.output(1.0))
+    ) where {M<:ModelWrapper,D,T<:Tagged, F}
+    ArgCheck.@argcheck 0.0 < temperature.current <= 1.0 "Temperature has to be bounded between 0.0 and 1.0"
+        return new{M,D,T,F}(model, data, tagged, temperature)
     end
 end
 function Objective(model::ModelWrapper{M}, data::D) where {M<:AbstractModel,D}
@@ -72,7 +79,7 @@ end
 
 ############################################################################################
 function (objective::Objective)(θᵤ::AbstractVector{T}) where {T<:Real}
-    @unpack model, data, tagged = objective
+    @unpack model, data, tagged, temperature = objective
     ## Convert vector θᵤ back to constrained space as NamedTuple
     θ = constrain(tagged.info.b⁻¹, tagged.info.unflatten_AD(θᵤ))
     #!NOTE: There are border cases where θᵤ is still finite, but θ no longer after transformation, so have to cover this separately
@@ -83,7 +90,7 @@ function (objective::Objective)(θᵤ::AbstractVector{T}) where {T<:Real}
     ## Evaluate objective
     ℓℒ = objective(merge(model.val, θ))
     ## Return log posterior
-    return ℓℒ + ℓjac
+    return temperature.current * (ℓℒ + ℓjac)
 end
 
 ############################################################################################

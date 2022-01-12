@@ -10,7 +10,8 @@ Note: Some improvements to work on:
         generate
         Predict -> predict(m(), (namedtuplevals))
 	-> For Sequential Estimation methods (SMC and beyond)
-        Need to update data in SOSS model separately (when created as input?)
+        - Need to update data in SOSS model separately (when created as input?)
+        - Need a way to separate log-prior and log-likelihood
 =#
 
 ############################################################################################
