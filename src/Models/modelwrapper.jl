@@ -212,7 +212,7 @@ Sample from 'model' prior and return as NamedTuple.
 
 """
 function sample(_rng::Random.AbstractRNG, model::ModelWrapper)
-    return sample(_rng, model.info.constraint)
+    return sample_constraint(_rng, model.info.constraint)
 end
 sample(model::ModelWrapper) = sample(Random.GLOBAL_RNG, model)
 

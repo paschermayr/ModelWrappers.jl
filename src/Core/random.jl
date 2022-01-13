@@ -1,27 +1,27 @@
 ############################################################################################
 """
 $(SIGNATURES)
-Sample from density 'prior'.
+Sample from constraint if 'prior'.
 
 # Examples
 ```julia
 ```
 
 """
-function sample(_rng::Random.AbstractRNG, prior)
+function sample_constraint(_rng::Random.AbstractRNG, prior)
     return nothing
 end
-function sample(_rng::Random.AbstractRNG, prior::Distributions.Distribution)
+function sample_constraint(_rng::Random.AbstractRNG, prior::Distributions.Distribution)
     return rand(_rng, prior)
 end
-function sample(_rng::Random.AbstractRNG, priorᵥ::Vector{<:Distributions.Distribution})
+function sample_constraint(_rng::Random.AbstractRNG, priorᵥ::Vector{<:Distributions.Distribution})
     return rand.(_rng, priorᵥ)
 end
-function sample(_rng::Random.AbstractRNG, priorᵥ::AbstractArray)
-    return map(iter -> sample(_rng, priorᵥ[iter]), eachindex(priorᵥ))
+function sample_constraint(_rng::Random.AbstractRNG, priorᵥ::AbstractArray)
+    return map(iter -> sample_constraint(_rng, priorᵥ[iter]), eachindex(priorᵥ))
 end
-function sample(_rng::Random.AbstractRNG, priorᵥ::NamedTuple{names}) where {names}
-    return NamedTuple{names}(Tuple(map(iter -> sample(_rng, priorᵥ[iter]), names)))
+function sample_constraint(_rng::Random.AbstractRNG, priorᵥ::NamedTuple{names}) where {names}
+    return NamedTuple{names}(Tuple(map(iter -> sample_constraint(_rng, priorᵥ[iter]), names)))
 end
 
 ############################################################################################
@@ -105,4 +105,4 @@ end
 
 ############################################################################################
 #export
-export sample, log_prior, log_prior_with_transform, log_abs_det_jac
+export sample_constraint, log_prior, log_prior_with_transform, log_abs_det_jac

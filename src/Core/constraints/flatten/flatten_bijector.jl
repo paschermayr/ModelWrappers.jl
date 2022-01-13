@@ -16,7 +16,7 @@ function _checkparam(
 end
 
 function _checkparam(_rng::Random.AbstractRNG, val, constraint::Distributions.Distribution)
-    _val = sample(_rng, constraint)
+    _val = sample_constraint(_rng, constraint)
     return typeof(val) == typeof(_val) && size(val) == size(_val) ? true : false
 end
 

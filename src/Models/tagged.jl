@@ -99,7 +99,7 @@ end
 
 #########################################
 function sample(_rng::Random.AbstractRNG, model::ModelWrapper, tagged::Tagged)
-    return merge(model.val, sample(_rng, tagged.info.constraint))
+    return merge(model.val, sample_constraint(_rng, tagged.info.constraint))
 end
 sample(model::ModelWrapper, tagged::Tagged) = sample(Random.GLOBAL_RNG, model, tagged)
 

@@ -37,6 +37,7 @@ struct FlattenDefault{T<:AbstractFloat,F<:FlattenTypes,S<:UnflattenTypes}
     flattentype::F
     "Determines if unflatten returns original type or if type may change (AD friendly)."
     unflattentype::S
+    #=
     function FlattenDefault(
         output::Type{T}=Float64,
         flattentype::F=FlattenContinuous(),
@@ -46,6 +47,7 @@ struct FlattenDefault{T<:AbstractFloat,F<:FlattenTypes,S<:UnflattenTypes}
             output, flattentype, unflattentype
         )
     end
+    =#
 end
 function FlattenDefault(;
     output::Type{T}=Float64,
