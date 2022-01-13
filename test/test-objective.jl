@@ -153,10 +153,10 @@ end
 
     grad_mod_fd = ForwardDiff.gradient(objectiveExample, theta_unconstrained)
     grad_mod_rd = ReverseDiff.gradient(objectiveExample, theta_unconstrained)
-    grad_mod_zy = Zygote.gradient(objectiveExample, theta_unconstrained)[1]
+#    grad_mod_zy = Zygote.gradient(objectiveExample, theta_unconstrained)[1]
 
     @test sum(abs.(grad_mod_fd - grad_mod_rd)) ≈ 0 atol = _TOL
-    @test sum(abs.(grad_mod_fd - grad_mod_zy)) ≈ 0 atol = _TOL
+#    @test sum(abs.(grad_mod_fd - grad_mod_zy)) ≈ 0 atol = _TOL
 end
 
 ############################################################################################

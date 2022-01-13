@@ -5,7 +5,7 @@ _syms = [
     keys(_modelProb.val),
     keys(_modelProb.val)[1],
     keys(_modelProb.val)[end],
-    (:d_a1, :d_a2, :d_a3, :d_a5, :d_a6, :d_a7, :d_a8, :d_b1, :d_b2),
+    (:d_a1, :d_a2, :d_a3, :d_a5, :d_a6, :d_a7, :d_a8),
 ]
 _targets = [Tagged(_modelProb, _syms[iter]) for iter in eachindex(_syms)]
 _params = [sample(_modelProb, _targets[iter]) for iter in eachindex(_syms)]

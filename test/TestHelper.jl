@@ -46,6 +46,8 @@ val_dist = (
         ],
     ),
     ## Multivariate Normal
+    #!NOTE: Zygote unable to work with Diagonal Covariance Matrices as of 2022/01/13
+    #=
     d_b1=Param(
         [2.0, 2.0], Distributions.MvNormal([2.0, 3.0], Diagonal(map(abs2, [1.0, 1.0])))
     ),
@@ -55,7 +57,8 @@ val_dist = (
             Distributions.MvNormal([2.0, 3.0], Diagonal(map(abs2, [1.0, 1.0]))),
             Distributions.MvNormal(Diagonal(map(abs2, [1.0, 1.0]))),
         ],
-    ),
+    )
+    ,
     d_b3=Param(
         [Float32.([54.0, 55.0]), Float32.([56.0, 57.0])],
         [
@@ -63,6 +66,7 @@ val_dist = (
             Distributions.MvNormal(Float32.([1, 1.0]), Float32.([5.0 0.3; 0.3 5.0])),
         ],
     ),
+    =#
     ## Gamma
     d_c1=Param(2.0, Distributions.Gamma(2, 3)),
     d_c2=Param([2.0, 2.0], [Distributions.Gamma(2, 3), Distributions.Gamma(2, 3)]),

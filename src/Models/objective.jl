@@ -11,14 +11,16 @@ struct Objective{M<:ModelWrapper, D, T<:Tagged, F<:Real}
     model::M
     data::D
     tagged::T
-    temperature::BaytesCore.ValueHolder{F}
+#    temperature::BaytesCore.ValueHolder{F}
+    temperature::F
     function Objective(
         model::M,
         data::D,
         tagged::T,
-        temperature::BaytesCore.ValueHolder{F} = BaytesCore.ValueHolder(model.info.flattendefault.output(1.0))
+#        temperature::BaytesCore.ValueHolder{F} = BaytesCore.ValueHolder(model.info.flattendefault.output(1.0))
+        temperature::F = model.info.flattendefault.output(1.0)
     ) where {M<:ModelWrapper,D,T<:Tagged, F}
-    ArgCheck.@argcheck 0.0 < temperature.current <= 1.0 "Temperature has to be bounded between 0.0 and 1.0"
+    ArgCheck.@argcheck 0.0 < temperature <= 1.0 "Temperature has to be bounded between 0.0 and 1.0"
         return new{M,D,T,F}(model, data, tagged, temperature)
     end
 end
@@ -90,7 +92,7 @@ function (objective::Objective)(θᵤ::AbstractVector{T}) where {T<:Real}
     ## Evaluate objective
     ℓℒ = objective(merge(model.val, θ))
     ## Return log posterior
-    return temperature.current * (ℓℒ + ℓjac)
+    return temperature * (ℓℒ + ℓjac)
 end
 
 ############################################################################################
