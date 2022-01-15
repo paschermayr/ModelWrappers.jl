@@ -7,7 +7,7 @@ Utility struct to help assign boundaries to parameter - keeps scalar parameter c
 # Fields
 $(TYPEDFIELDS)
 """
-struct Constrained{T<:Real} <: AbstractConstrained
+struct Constrained{T<:Real} <: AbstractConstraint
     min::T
     max::T
     function Constrained(min::S, max::T, ϵ = 1e-6) where {S<:AbstractFloat, T<:AbstractFloat}

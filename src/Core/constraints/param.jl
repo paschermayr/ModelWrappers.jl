@@ -3,7 +3,7 @@
 $(TYPEDEF)
 Abstract super type for parameter constraints.
 """
-abstract type AbstractConstrained end
+abstract type AbstractConstraint end
 
 ############################################################################################
 """
@@ -30,4 +30,4 @@ flatten(param::Param) = flatten(param.val, param.constraint)
 
 ############################################################################################
 # Export
-export Param
+export Param, AbstractConstraint

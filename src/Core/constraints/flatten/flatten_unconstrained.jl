@@ -7,7 +7,7 @@ Utility struct to help assign boundaries to parameter - keeps parameter unconstr
 # Fields
 $(TYPEDFIELDS)
 """
-struct Unconstrained <: AbstractConstrained
+struct Unconstrained <: AbstractConstraint
     function Unconstrained()
         return new()
     end

@@ -7,7 +7,7 @@ Utility struct to help assign boundaries to parameter - keeps parameter fixed. U
 # Fields
 $(TYPEDFIELDS)
 """
-struct Fixed <: AbstractConstrained
+struct Fixed <: AbstractConstraint
     function Fixed()
         return new()
     end
