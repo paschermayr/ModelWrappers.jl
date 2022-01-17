@@ -17,7 +17,7 @@ df_AD = FlattenDefault(Float64, FlattenContinuous(), UnflattenAD())
 
 ############################################################################################
 #Probabilistic Parameters - Some selected distributions
-struct ProbModel <: AbstractModel end
+struct ProbModel <: ModelName end
 val_dist = (
     ## Normal distribution
     d_a1=Param(2.0, Distributions.Normal()),
@@ -161,7 +161,7 @@ val_dist_nested = (;
 
 ############################################################################################
 # Non-Probabilistic Parameter (Experimental!):
-struct ConstrainedModel <: AbstractModel end
+struct ConstrainedModel <: ModelName end
 val_constrained = (
     ## Fixed
     # Floats
@@ -213,7 +213,7 @@ _σ = Distributions.truncated(Distributions.Cauchy(10.0, 10), 0.0, 30.0)
 _iwish2 = Distributions.InverseWishart(10.0, [1.0 0.0; 0.0 1.0])
 _iwish3 = Distributions.InverseWishart(10.0, [1.0 0.0 0.0; 0 1 0; 0 0.0 1.0])
 _ρ = [1.0 0.25; 0.25 1.0]
-struct ExampleModel <: AbstractModel end
+struct ExampleModel <: ModelName end
 _val_examplemodel = (
     μ1=Param(1.0, Distributions.Normal()),
     μ2=Param([2.0, 3.0], Distributions.MvNormal(Diagonal(map(abs2, [1.0, 1.0])))),
@@ -237,7 +237,7 @@ _val_examplemodel = (
 
 ################################################################################
 # Parameter that may work in lower dimensions
-struct LowerDims <: AbstractModel end
+struct LowerDims <: ModelName end
 _val_lowerdims = (;
     ## Dirichlet
     ldim_e1=Param([0.1, 0.9], Distributions.Dirichlet(2, 2.0)),

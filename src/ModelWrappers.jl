@@ -5,7 +5,12 @@ module ModelWrappers
 import Base: Base, length, fill, fill!
 import StatsBase: StatsBase, sample, sample!
 import BaytesCore: BaytesCore, subset, update
-using BaytesCore: BaytesCore, Tuple_to_Namedtuple, ValueHolder
+using BaytesCore:
+    AbstractModelWrapper,
+    AbstractObjective,
+    AbstractResult,
+    BaytesCore,
+    Tuple_to_Namedtuple
 
 using DocStringExtensions:
     DocStringExtensions, TYPEDEF, TYPEDFIELDS, FIELDS, SIGNATURES, FUNCTIONNAME

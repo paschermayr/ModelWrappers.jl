@@ -4,12 +4,12 @@
 $(TYPEDEF)
 Abstract super type for Baytes Models.
 """
-abstract type AbstractModel end
+abstract type ModelName end
 """
 $(TYPEDEF)
 Default modelname of Baytes.Model struct.
 """
-struct BaseModel <: AbstractModel end
+struct BaseModel <: ModelName end
 
 ############################################################################################
 """
@@ -22,8 +22,8 @@ Contains information about current Model value, name, and information, see also 
 $(TYPEDFIELDS)
 """
 mutable struct ModelWrapper{
-    M<:Union{Soss.ConditionalModel,AbstractModel},A<:NamedTuple,B<:ParameterInfo
-}
+    M<:Union{Soss.ConditionalModel,ModelName},A<:NamedTuple,B<:ParameterInfo
+} <: BaytesCore.AbstractModelWrapper
     "Current Model values as NamedTuple - works with Nested Tuples."
     val::A
     "Information about parameter distributions, transformations and constraints, see [`ParameterInfo`](@ref)."
@@ -32,14 +32,14 @@ mutable struct ModelWrapper{
     id::M
     function ModelWrapper(
         val::A, info::B, id::M
-    ) where {M<:Union{Soss.ConditionalModel,AbstractModel},A<:NamedTuple,B<:ParameterInfo}
+    ) where {M<:Union{Soss.ConditionalModel,ModelName},A<:NamedTuple,B<:ParameterInfo}
         return new{M,A,B}(val, info, id)
     end
 end
 # Convenient Constructor
 function ModelWrapper(
     id::M, parameter::A, flattendefault::F=FlattenDefault()
-) where {M<:Union{Soss.ConditionalModel,AbstractModel},A<:NamedTuple,F<:FlattenDefault}
+) where {M<:Union{Soss.ConditionalModel,ModelName},A<:NamedTuple,F<:FlattenDefault}
     ## Check if all values in val are of type Param
     ArgCheck.@argcheck _checkparams(parameter) "All values in (nested) NamedTuple have to be of Type Param."
     ## Split between values and constraints
@@ -273,7 +273,8 @@ function log_abs_det_jac(model::ModelWrapper)
 end
 
 ############################################################################################
-export AbstractModel,
+export
+    ModelName,
     BaseModel,
     ModelWrapper,
     simulate,

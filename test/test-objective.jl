@@ -5,7 +5,7 @@ dat = randn(100)
 ################################################################################
 # Create custom Model ~ Name it to avoid name collision
 _param = (μ=Param(μ₀, Distributions.Normal()), σ=Param(σ₀, Distributions.Exponential()))
-struct SossBenchmark <: AbstractModel end
+struct SossBenchmark <: ModelName end
 modelSossBM = ModelWrapper(SossBenchmark(), _param)
 obectiveSossBM = Objective(modelSossBM, dat)
 

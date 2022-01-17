@@ -7,29 +7,27 @@ Functor to calculate 'ℓfunc' and gradient at unconstrained 'θᵤ', including 
 # Fields
 $(TYPEDFIELDS)
 """
-struct Objective{M<:ModelWrapper, D, T<:Tagged, F<:Real}
+struct Objective{M<:ModelWrapper, D, T<:Tagged, F<:Real} <: BaytesCore.AbstractObjective
     model::M
     data::D
     tagged::T
-#    temperature::BaytesCore.ValueHolder{F}
     temperature::F
     function Objective(
         model::M,
         data::D,
         tagged::T,
-#        temperature::BaytesCore.ValueHolder{F} = BaytesCore.ValueHolder(model.info.flattendefault.output(1.0))
         temperature::F = model.info.flattendefault.output(1.0)
     ) where {M<:ModelWrapper,D,T<:Tagged, F}
     ArgCheck.@argcheck 0.0 < temperature <= 1.0 "Temperature has to be bounded between 0.0 and 1.0"
         return new{M,D,T,F}(model, data, tagged, temperature)
     end
 end
-function Objective(model::ModelWrapper{M}, data::D) where {M<:AbstractModel,D}
+function Objective(model::ModelWrapper{M}, data::D) where {M<:ModelName,D}
     return Objective(model, data, Tagged(model))
 end
 function Objective(
     model::ModelWrapper{M}, data::D, sym::S
-) where {M<:AbstractModel,D,S<:Union{Symbol,NTuple{k,Symbol} where k}}
+) where {M<:ModelName,D,S<:Union{Symbol,NTuple{k,Symbol} where k}}
     return Objective(model, data, Tagged(model, sym))
 end
 

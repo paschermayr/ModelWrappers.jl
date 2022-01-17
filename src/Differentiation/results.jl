@@ -3,7 +3,7 @@
 $(TYPEDEF)
 Abstract super type for AbstractDifferentiableObjective results.
 """
-abstract type ℓObjectiveResult end
+abstract type ℓObjectiveResult <: BaytesCore.AbstractResult end
 
 """
 $(TYPEDEF)
