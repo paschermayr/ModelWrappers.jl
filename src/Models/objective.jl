@@ -7,7 +7,7 @@ Functor to calculate 'ℓfunc' and gradient at unconstrained 'θᵤ', including 
 # Fields
 $(TYPEDFIELDS)
 """
-struct Objective{M<:ModelWrapper, D, T<:Tagged, F<:Real} <: BaytesCore.AbstractObjective
+struct Objective{M<:ModelWrapper, D, T<:Tagged, F<:AbstractFloat} <: BaytesCore.AbstractObjective
     model::M
     data::D
     tagged::T
@@ -17,18 +17,25 @@ struct Objective{M<:ModelWrapper, D, T<:Tagged, F<:Real} <: BaytesCore.AbstractO
         data::D,
         tagged::T,
         temperature::F = model.info.flattendefault.output(1.0)
-    ) where {M<:ModelWrapper,D,T<:Tagged, F}
+    ) where {M<:ModelWrapper,D,T<:Tagged,F<:AbstractFloat}
     ArgCheck.@argcheck 0.0 < temperature <= 1.0 "Temperature has to be bounded between 0.0 and 1.0"
         return new{M,D,T,F}(model, data, tagged, temperature)
     end
 end
-function Objective(model::ModelWrapper{M}, data::D) where {M<:ModelName,D}
-    return Objective(model, data, Tagged(model))
+function Objective(
+    model::ModelWrapper{M},
+    data::D,
+    temperature::F = model.info.flattendefault.output(1.0)
+    ) where {M<:ModelName,D,F<:AbstractFloat}
+    return Objective(model, data, Tagged(model), temperature)
 end
 function Objective(
-    model::ModelWrapper{M}, data::D, sym::S
-) where {M<:ModelName,D,S<:Union{Symbol,NTuple{k,Symbol} where k}}
-    return Objective(model, data, Tagged(model, sym))
+    model::ModelWrapper{M},
+    data::D,
+    sym::S,
+    temperature::F = model.info.flattendefault.output(1.0)
+) where {M<:ModelName,D,S<:Union{Symbol,NTuple{k,Symbol} where k},F<:AbstractFloat}
+    return Objective(model, data, Tagged(model, sym), temperature)
 end
 
 ############################################################################################
