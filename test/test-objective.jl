@@ -20,8 +20,11 @@ function (objective::Objective{<:ModelWrapper{SossBenchmark}})(θ::NamedTuple)
     return lp + ll
 end
 
+
 ################################################################################
+#!NOTE: Remove Soss dependency from ModelWrappers and make separete BaytesSoss, so heavy deps. removed
 # Create Soss Model
+#=
 m = @model n begin
     μ ~ Distributions.Normal()
     σ ~ Distributions.Exponential()
@@ -100,7 +103,7 @@ objective_soss2 = Objective(model_soss, _tagged)
     @test sum(abs.(grad_modsoss_fd - grad_modsoss_rd)) ≈ 0 atol = _TOL
     @test sum(abs.(grad_modsoss_fd - grad_modsoss_zy)) ≈ 0 atol = _TOL
 end
-
+=#
 ############################################################################################
 # Test Gradients of Model with custom function
 modelExample = ModelWrapper(ExampleModel(), _val_examplemodel)

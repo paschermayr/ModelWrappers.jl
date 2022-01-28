@@ -1,4 +1,8 @@
 ############################################################################################
+using Soss: Soss, ConditionalModel
+import Soss: Soss, predict, simulate
+
+############################################################################################
 "Wrapper functions to work with Soss Models"
 #=
 Note: Some improvements to work on:

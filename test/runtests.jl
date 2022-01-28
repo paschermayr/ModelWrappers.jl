@@ -3,7 +3,7 @@
 using Test
 using Random: Random, AbstractRNG, seed!
 
-using Soss
+#using Soss
 using LinearAlgebra
 using Distributions, DistributionsAD
 using ForwardDiff, ReverseDiff, Zygote

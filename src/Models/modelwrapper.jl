@@ -12,6 +12,7 @@ Default modelname of Baytes.Model struct.
 struct BaseModel <: ModelName end
 
 ############################################################################################
+#!NOTE: For M<:Union{P,ModelName} where {P}, keep A so option using of other PPLs is easily configurable.
 """
 $(TYPEDEF)
 Baytes Model struct.
@@ -22,24 +23,24 @@ Contains information about current Model value, name, and information, see also 
 $(TYPEDFIELDS)
 """
 mutable struct ModelWrapper{
-    M<:Union{Soss.ConditionalModel,ModelName},A<:NamedTuple,B<:ParameterInfo
+    M<:Union{P,ModelName} where {P},A<:NamedTuple,B<:ParameterInfo
 } <: BaytesCore.AbstractModelWrapper
     "Current Model values as NamedTuple - works with Nested Tuples."
     val::A
     "Information about parameter distributions, transformations and constraints, see [`ParameterInfo`](@ref)."
     info::B
-    "Model id, per default BaseModel. Useful for dispatching ModelWrapper struct. If Soss.ConditionalModel provided, it is stored here."
+    "Model id, per default BaseModel. Useful for dispatching ModelWrapper struct."
     id::M
     function ModelWrapper(
         val::A, info::B, id::M
-    ) where {M<:Union{Soss.ConditionalModel,ModelName},A<:NamedTuple,B<:ParameterInfo}
+    ) where {M<:Union{P,ModelName} where {P},A<:NamedTuple,B<:ParameterInfo}
         return new{M,A,B}(val, info, id)
     end
 end
 # Convenient Constructor
 function ModelWrapper(
     id::M, parameter::A, flattendefault::F=FlattenDefault()
-) where {M<:Union{Soss.ConditionalModel,ModelName},A<:NamedTuple,F<:FlattenDefault}
+) where {M<:Union{P,ModelName} where {P},A<:NamedTuple,F<:FlattenDefault}
     ## Check if all values in val are of type Param
     ArgCheck.@argcheck _checkparams(parameter) "All values in (nested) NamedTuple have to be of Type Param."
     ## Split between values and constraints
