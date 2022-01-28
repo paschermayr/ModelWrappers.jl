@@ -156,6 +156,7 @@ grad_rvd = ReverseDiff.gradient(myobjective, θ_proposed)
 grad_zyg = Zygote.gradient(myobjective, θ_proposed)
 all(grad_fwd .≈ grad_rvd .≈ grad_zyg[1]) #true
 ```
+<!---
 
 ## Using Soss.jl with ModelWrappers.jl (Experimental)
 
@@ -181,7 +182,7 @@ all(grad_fwd_soss .≈ grad_rvd_soss .≈ grad_zyg_soss[1]) #true
 objective_soss(mymodel.val) ≈ myobjective(mymodel.val) #true
 all(grad_fwd .≈ grad_rvd .≈ grad_zyg[1] .≈ grad_fwd_soss .≈ grad_rvd_soss .≈ grad_zyg_soss[1]) #true
 ```
-
+-->
 ## Going Forward
 
 This package is still highly experimental - suggestions and comments are always welcome!
