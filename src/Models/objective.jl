@@ -84,6 +84,19 @@ function generate(_rng::Random.AbstractRNG, objective::Objective)
     return nothing
 end
 
+"""
+$(SIGNATURES)
+Assign model dynamics for a given `objective`.
+
+# Examples
+```julia
+```
+
+"""
+function dynamics(objective::Objective)
+    return nothing
+end
+
 ############################################################################################
 function (objective::Objective)(θᵤ::AbstractVector{T}) where {T<:Real}
     @unpack model, data, tagged, temperature = objective
@@ -102,4 +115,4 @@ end
 
 ############################################################################################
 # Export
-export Objective, predict, generate
+export Objective, predict, generate, dynamics
