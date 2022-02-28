@@ -30,7 +30,6 @@ Default arguments for flatten function.
 $(TYPEDFIELDS)
 """
 struct FlattenDefault{T<:AbstractFloat,F<:FlattenTypes,S<:UnflattenTypes}
-    #!TODO: need to find a way to make this isbits(flattendefault) == true
     "Type of flatten output"
     output::Type{T}
     "Determines if all inputs are flattened (FlattenAll) or only continuous values (FlattenContinuous)."
