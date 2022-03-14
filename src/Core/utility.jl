@@ -92,12 +92,15 @@ Return parameter names as a string in increasing order. Not exported.
 
 """
 function _paramnames(sym::Symbol, len::Integer)
-    return [string(sym, i) for i in Base.OneTo(len)]
+    return [len == 1 ? string(sym) : string(sym, i) for i in Base.OneTo(len)]
 end
 function _paramnames(sym::NTuple{N,Symbol}, len::NTuple{N,Integer}) where {N}
-    return [string(sym[n], i) for n in Base.OneTo(length(sym)) for i in Base.OneTo(len[n])]
+    ArgCheck.@argcheck length(sym) == length(len)
+    return [
+        len[n] == 1 ? string(sym[n]) : string(sym[n], i)
+        for n in Base.OneTo(length(sym)) for i in Base.OneTo(len[n])
+    ]
 end
-
 """
 $(SIGNATURES)
 Return all parameter names in increasing order. Not exported.

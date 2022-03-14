@@ -89,7 +89,7 @@ Evaluate eventual Jacobian adjustments from transformation of 'b' at 'θ'.
 
 """
 function log_abs_det_jac(b::Bijectors.Identity, θ::T) where {T}
-    #!NOTE: A temporary solution to allow Fixed Params of arbitrary size work nice with bijectors
+    #!NOTE: Allow Fixed Params of arbitrary size work nice with bijectors
     return 0.0
 end
 function log_abs_det_jac(b::S, θ::T) where {S<:Bijectors.Bijector,T}
