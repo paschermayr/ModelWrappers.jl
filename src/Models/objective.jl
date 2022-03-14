@@ -83,10 +83,10 @@ Generate statistics given model parameter and data.
 function generate(_rng::Random.AbstractRNG, objective::Objective)
     return nothing
 end
-function generate(_rng::Random.AbstractRNG, objective::Objective, gen::Val{true})
+function generate(_rng::Random.AbstractRNG, objective::Objective, gen::BaytesCore.UpdateTrue)
     return generate(_rng, objective)
 end
-function generate(_rng::Random.AbstractRNG, objective::Objective, gen::Val{false})
+function generate(_rng::Random.AbstractRNG, objective::Objective, gen::BaytesCore.UpdateFalse)
     return nothing
 end
 

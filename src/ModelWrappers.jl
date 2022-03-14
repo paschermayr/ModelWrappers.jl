@@ -10,7 +10,10 @@ using BaytesCore:
     AbstractObjective,
     AbstractResult,
     BaytesCore,
-    Tuple_to_Namedtuple
+    Tuple_to_Namedtuple,
+    UpdateBool,
+    UpdateTrue,
+    UpdateFalse
 
 using DocStringExtensions:
     DocStringExtensions, TYPEDEF, TYPEDFIELDS, FIELDS, SIGNATURES, FUNCTIONNAME
