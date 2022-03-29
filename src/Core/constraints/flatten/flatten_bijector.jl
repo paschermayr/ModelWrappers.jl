@@ -5,7 +5,7 @@ end
 function _to_bijector(d::Distributions.Distribution)
     return Bijectors.bijector(d)
 end
-Distribution
+
 ############################################################################################
 function _checkparam(
     _rng::Random.AbstractRNG,

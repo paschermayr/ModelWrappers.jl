@@ -61,6 +61,7 @@ function _anyparam(val::A) where {A<:NamedTuple}
 end
 
 ############################################################################################
+#=
 """
 $(SIGNATURES)
 Retrieve all parameter that are not fixed. Not exported.
@@ -80,7 +81,7 @@ function _param_keys(constraints::NamedTuple)
     end
     return _sym
 end
-
+=#
 ############################################################################################
 """
 $(SIGNATURES)
@@ -146,7 +147,7 @@ function paramcount(sym::NTuple{N,Symbol}, types::F, val) where {F<:FlattenDefau
     val_flattened, unflatten = flatten(types, val)
     return unflatten.unflatten.lengths
 end
-function paramcount(types::F, val::NamedTuple{names}) where {F<:FlattenDefault,N,names}
+function paramcount(types::F, val::NamedTuple{names}) where {F<:FlattenDefault,names}
     return map(fld -> paramcount(fld, types, val[fld]), names)
 end
 

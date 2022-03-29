@@ -18,7 +18,7 @@ struct Param{A,B}
     val::A
     constraint::B
     function Param(_rng::Random.AbstractRNG, val::A, constraint::B) where {A,B}
-        ArgCheck.@argcheck _checkparam(_rng, val, constraint) println(
+        ArgCheck.@argcheck _checkparam(_rng, val, constraint) string(
             "Val and constraint do not match for ", val, " and ", constraint, "."
         )
         return new{A,B}(val, constraint)

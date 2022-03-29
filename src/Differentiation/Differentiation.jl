@@ -45,6 +45,7 @@ include("tune_analytic.jl")
 include("tune_automatic.jl")
 include("diffobjective.jl")
 include("results.jl")
+include("checks.jl")
 
 ############################################################################################
 # Export

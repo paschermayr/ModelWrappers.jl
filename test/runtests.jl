@@ -44,7 +44,10 @@ include("TestHelper.jl")
 ############################################################################################
 # Run Tests
 @testset "All tests" begin
+    include("test-core.jl")
+
     include("test-flatten.jl")
+
     include("test-models.jl")
     include("test-tagged.jl")
     include("test-objective.jl")
