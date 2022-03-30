@@ -39,7 +39,6 @@ end
 
 ############################################################################################
 #!NOTE: Cases where we can reduce dimensionality  -> Can make use of the fact that we did define above functions in abstract terms.
-
 ############################################################################################
 function flatten(
     output::Type{T},
@@ -52,6 +51,7 @@ function flatten(
         Unconstrained will always be 0 everywhere except upper diagonal elements. All other entries do not matter for constrain/unconstrain.
         Constrained will always have unit variance.
     =#
+    #!NOTE: CorrBijector seems to unconstrain to a Upper Diagonal Matrix
     idx_upper = tag(x, true, false)
     buffer = ones(T, size(x))
     function CorrMatrix_from_vec(x_vec::Union{<:Real,AbstractVector{<:Real}})
@@ -66,6 +66,7 @@ function flatten(
     x::Matrix{R},
     constraint::C,
 ) where {T<:AbstractFloat,F<:FlattenTypes,R<:Real,C<:Union{Distributions.LKJ, Bijectors.CorrBijector}}
+    #!NOTE: CorrBijector seems to unconstrain to a Upper Diagonal Matrix
     idx_upper = tag(x, true, false)
     function CorrMatrix_from_vec_AD(x_vec::Union{<:Real,AbstractVector{<:Real}})
         return Symmetric_from_flatten!(ones(eltype(x_vec), size(x)), x_vec, idx_upper)
@@ -75,6 +76,9 @@ end
 
 ############################################################################################
 #!TODO: Works with flatten/unflatten - but constraint/unconstraint seems to deduce wrong type for ReverseDiff from Bijector - works fine with ForwardDiff/Zygote
+#=
+#!NOTE: Problem here that Bijectors map to lower triangular matrix while most AD libraries evaluate upper triangular matrices.
+
 function flatten(
     output::Type{T},
     flattentype::F,
@@ -82,7 +86,8 @@ function flatten(
     x::Matrix{R},
     constraint::C,
 ) where {T<:AbstractFloat,F<:FlattenTypes,R<:Real,C<:Union{Distributions.InverseWishart, Bijectors.PDBijector}}
-    idx_upper = tag(x, true, true)
+    #!NOTE: PDBijector seems to unconstrain to a Lower Diagonal Matrix
+    idx_upper = tag(x, false, true) #tag(x, true, true)
     buffer = zeros(T, size(x))
     function Symmetric_from_vec(x_vec::Union{<:Real,AbstractVector{<:Real}})
         return Symmetric_from_flatten!(buffer, x_vec, idx_upper)
@@ -96,13 +101,15 @@ function flatten(
     x::Matrix{R},
     constraint::C,
 ) where {T<:AbstractFloat,F<:FlattenTypes,R<:Real,C<:Union{Distributions.InverseWishart, Bijectors.PDBijector}}
-    idx_upper = tag(x, true, true)
+    #!NOTE: PDBijector seems to unconstrain to a Lower Diagonal Matrix
+    idx_upper = tag(x, false, true) #tag(x, true, true)
+    dims = size(x)
     function Symmetric_from_vec_AD(x_vec::Union{<:Real,AbstractVector{<:Real}})
         return Symmetric_from_flatten!(zeros(eltype(x_vec), dims), x_vec, idx_upper)
     end
     return Vector{T}(flatten_Symmetric(x, idx_upper)), Symmetric_from_vec_AD
 end
-
+=#
 ############################################################################################
 #=
 function flatten(
