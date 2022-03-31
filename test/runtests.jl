@@ -5,7 +5,7 @@ using Random: Random, AbstractRNG, seed!
 
 #using Soss
 using LinearAlgebra
-using Distributions, DistributionsAD
+using Distributions, Bijectors, DistributionsAD
 using ForwardDiff, ReverseDiff, Zygote
 
 ############################################################################################
@@ -46,6 +46,7 @@ include("TestHelper.jl")
 @testset "All tests" begin
     include("test-core.jl")
 
+    include("test-bijector.jl")
     include("test-flatten.jl")
 
     include("test-models.jl")
