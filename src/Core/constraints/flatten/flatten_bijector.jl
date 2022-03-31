@@ -76,9 +76,8 @@ end
 
 ############################################################################################
 #!TODO: Works with flatten/unflatten - but constraint/unconstraint seems to deduce wrong type for ReverseDiff from Bijector - works fine with ForwardDiff/Zygote
-#=
-#!NOTE: Problem here that Bijectors map to lower triangular matrix while most AD libraries evaluate upper triangular matrices.
 
+#!NOTE: Bijectors map to lower triangular matrix while most AD libraries evaluate upper triangular matrices.
 function flatten(
     output::Type{T},
     flattentype::F,
@@ -109,9 +108,8 @@ function flatten(
     end
     return Vector{T}(flatten_Symmetric(x, idx_upper)), Symmetric_from_vec_AD
 end
-=#
+
 ############################################################################################
-#=
 function flatten(
     output::Type{T},
     flattentype::F,
@@ -153,7 +151,6 @@ function flatten(output::Type{T},
     end
     return Vector{T}(flatten_Simplex(x)), unflatten_Simplex_AD
 end
-=#
 
 ############################################################################################
 # Export
