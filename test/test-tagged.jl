@@ -11,8 +11,8 @@ _targets = [Tagged(_modelProb, _syms[iter]) for iter in eachindex(_syms)]
 _params = [sample(_modelProb, _targets[iter]) for iter in eachindex(_syms)]
 
 @testset "Tagged - Model parameter" begin
-    for iter in eachindex(_syms)
         ## Assign Sub Model
+        for iter in eachindex(_syms)
         _sym = _syms[iter]
         _target = _targets[iter]
         _param = _params[iter]
@@ -33,5 +33,14 @@ _params = [sample(_modelProb, _targets[iter]) for iter in eachindex(_syms)]
         _θ1, _ = flatten(theta_constrained, _model_temp.info.constraint)
         _θ2, _ = flatten(theta_constrained2, _target.info.constraint)
         @test sum(abs.(_θ1 - _θ2)) ≈ 0 atol = _TOL
+        ## Utility functions
+        subset(_model_temp, _target)
+        ModelWrappers.length(_target)
+        ModelWrappers.paramnames(_target)
+        fill(_model_temp, _target, _model_temp.val)
+        fill!(_model_temp, _target, _model_temp.val)
+        _model_temp.val
+        sample(_RNG, _model_temp, _target)
+        sample!(_RNG, _model_temp, _target)
     end
 end

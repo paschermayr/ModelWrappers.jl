@@ -147,8 +147,16 @@ function (objective::Objective{<:ModelWrapper{ExampleModel}})(θ::NamedTuple)
 end
 
 @testset "Objective - Log Objective AutoDiff compatibility - Vectorized Model" begin
+    length(objectiveExample)
+    ModelWrappers.paramnames(objectiveExample)
     theta_unconstrained = randn(length(modelExample))
 
+    predict(_RNG, objectiveExample)
+    generate(_RNG, objectiveExample)
+    generate(_RNG, objectiveExample, ModelWrappers.UpdateTrue())
+    generate(_RNG, objectiveExample, ModelWrappers.UpdateFalse())
+    dynamics(objectiveExample)
+    
     @test abs(
         (log_prior(modelExample) + log_abs_det_jac(modelExample)) -
         log_prior_with_transform(modelExample),
@@ -160,6 +168,7 @@ end
 
     @test sum(abs.(grad_mod_fd - grad_mod_rd)) ≈ 0 atol = _TOL
     @test sum(abs.(grad_mod_fd - grad_mod_zy)) ≈ 0 atol = _TOL
+
 end
 
 ############################################################################################

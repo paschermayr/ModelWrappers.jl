@@ -13,27 +13,34 @@ function check_gradients(
     objective::Objective,
     ADlibraries = [:ForwardDiff, :ReverseDiff, :Zygote],
     θᵤ = randn(_rng, length(objective)),
-    difftune = map(backend -> DiffObjective(objective, AutomaticDiffTune(backend, objective)), ADlibraries)
+    difftune = map(backend -> DiffObjective(objective, AutomaticDiffTune(backend, objective)), ADlibraries);
+    printoutput = true
 )
 ## Compute Gradients
     ℓobjectiveresults = ℓGradientResult[]
     for iter in eachindex(difftune)
         push!(ℓobjectiveresults, log_density_and_gradient(difftune[iter], θᵤ))
-        println(ADlibraries[iter], " gradient call succesfull.")
+        if printoutput
+            println(ADlibraries[iter], " gradient call succesfull.")
+        end
     end
 ## Check differences
     ℓobjective_diff = map(
         iter -> ℓobjectiveresults[1].ℓθᵤ - ℓobjectiveresults[iter].ℓθᵤ, eachindex(ℓobjectiveresults)
     )
     for iter in eachindex(ℓobjectiveresults)
-        println("Log objective result difference of ", ADlibraries[1], " against ", ADlibraries[iter], ": ", ℓobjective_diff[iter])
+        if printoutput
+            println("Log objective result difference of ", ADlibraries[1], " against ", ADlibraries[iter], ": ", ℓobjective_diff[iter])
+        end
     end
 
     ℓobjective_gradient_diff = map(
         iter -> sum(abs.(ℓobjectiveresults[1].∇ℓθᵤ .- ℓobjectiveresults[iter].∇ℓθᵤ)), eachindex(ℓobjectiveresults)
     )
     for iter in eachindex(ℓobjective_gradient_diff)
-        println("Log objective gradient difference of ", ADlibraries[1], " against ", ADlibraries[iter], ": ", ℓobjective_gradient_diff[iter])
+        if printoutput
+            println("Log objective gradient difference of ", ADlibraries[1], " against ", ADlibraries[iter], ": ", ℓobjective_gradient_diff[iter])
+        end
     end
 ## Compare against base Forward and ReverseDiff
     grad_fd = ForwardDiff.gradient(objective, θᵤ)
@@ -42,7 +49,9 @@ function check_gradients(
         (sum(abs.(result.∇ℓθᵤ .- grad_fd)), sum(abs.(result.∇ℓθᵤ .- grad_rd))), ℓobjectiveresults
     )
     for iter in eachindex(fdrd_diff)
-        println("Log objective gradient difference of ", ADlibraries[iter], " against Forward/Reverse call: ", fdrd_diff[iter])
+        if printoutput
+            println("Log objective gradient difference of ", ADlibraries[iter], " against Forward/Reverse call: ", fdrd_diff[iter])
+        end
     end
 ## Return differences
     return (

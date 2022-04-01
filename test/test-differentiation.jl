@@ -3,15 +3,14 @@
 modelExample = ModelWrapper(ExampleModel(), _val_examplemodel)
 objectiveExample = Objective(modelExample, (data1, data2, data3, _idx))
 
-θᵤ = randn(length(objectiveExample))
-tune_fwd = AutomaticDiffTune(:ForwardDiff, objectiveExample)
-tune_rd = AutomaticDiffTune(:ReverseDiff, objectiveExample)
-tune_zyg = AutomaticDiffTune(:Zygote, objectiveExample)
-fwd = DiffObjective(objectiveExample, tune_fwd)
-rd = DiffObjective(objectiveExample, tune_rd)
-zyg = DiffObjective(objectiveExample, tune_zyg)
-
 @testset "AutoDiffContainer - Log Objective AutoDiff compatibility - Vectorized Model" begin
+    ## Assign DiffTune
+    tune_fwd = AutomaticDiffTune(:ForwardDiff, objectiveExample)
+    tune_rd = AutomaticDiffTune(:ReverseDiff, objectiveExample)
+    tune_zyg = AutomaticDiffTune(:Zygote, objectiveExample)
+    fwd = DiffObjective(objectiveExample, tune_fwd)
+    rd = DiffObjective(objectiveExample, tune_rd)
+    zyg = DiffObjective(objectiveExample, tune_zyg)
     theta_unconstrained = randn(length(modelExample))
     ## Compute Diffresult
     _grad1 = _log_density_and_gradient(objectiveExample, tune_fwd, theta_unconstrained)
@@ -38,6 +37,19 @@ zyg = DiffObjective(objectiveExample, tune_zyg)
     @test sum(abs.(grad_mod_fd - grad1.∇ℓθᵤ)) ≈ 0 atol = _TOL
     @test sum(abs.(grad_mod_rd - grad2.∇ℓθᵤ)) ≈ 0 atol = _TOL
     @test sum(abs.(grad_mod_zy - grad3.∇ℓθᵤ)) ≈ 0 atol = _TOL
+    ## Checks
+    _output = check_gradients(_RNG, objectiveExample, [:ForwardDiff, :ReverseDiff, :Zygote]; printoutput = false)
+    @test sum(abs.(_output.ℓobjective_gradient_diff)) ≈ 0 atol = _TOL
+    ## Update DiffTune
+    ModelWrappers.update(tune_fwd, objectiveExample)
+    ModelWrappers.update(tune_rd, objectiveExample)
+    ModelWrappers.update(tune_zyg, objectiveExample)
+    ## Config DiffTune
+    theta_unconstrained2 = randn(length(objectiveExample))
+    ModelWrappers._config(ModelWrappers.ADForward(), objectiveExample, theta_unconstrained2)
+    ModelWrappers._config(ModelWrappers.ADReverse(), objectiveExample, theta_unconstrained2)
+    ModelWrappers._config(ModelWrappers.ADReverseUntaped(), objectiveExample, theta_unconstrained2)
+    ModelWrappers._config(ModelWrappers.ADZygote(), objectiveExample, theta_unconstrained2)
 end
 
 ############################################################################################
@@ -45,11 +57,14 @@ end
 modelLowerDim = ModelWrapper(LowerDims(), _val_lowerdims)
 objectiveLowerDim = Objective(modelLowerDim, nothing)
 
-fwd = DiffObjective(objectiveLowerDim, AutomaticDiffTune(:ForwardDiff, objectiveLowerDim))
-rd = DiffObjective(objectiveLowerDim, AutomaticDiffTune(:ReverseDiff, objectiveLowerDim))
-zyg = DiffObjective(objectiveLowerDim, AutomaticDiffTune(:Zygote, objectiveLowerDim))
-
 @testset "AutoDiffContainer - Log Objective AutoDiff compatibility - Lower dimensions" begin
+    ## Assign DiffTune
+    autodiff_fd = AutomaticDiffTune(:ForwardDiff, objectiveLowerDim)
+    autodiff_rd = AutomaticDiffTune(:ReverseDiff, objectiveLowerDim)
+    autodiff_zyg = AutomaticDiffTune(:Zygote, objectiveLowerDim)
+    fwd = DiffObjective(objectiveLowerDim, autodiff_fd)
+    rd = DiffObjective(objectiveLowerDim, autodiff_rd)
+    zyg = DiffObjective(objectiveLowerDim, autodiff_zyg)
     theta_unconstrained = randn(length(objectiveLowerDim))
     ## Compute Diffresult
     ld1 = log_density(fwd, theta_unconstrained)
@@ -70,6 +85,23 @@ zyg = DiffObjective(objectiveLowerDim, AutomaticDiffTune(:Zygote, objectiveLower
     @test sum(abs.(grad_mod_fd - grad1.∇ℓθᵤ)) ≈ 0 atol = _TOL
     @test sum(abs.(grad_mod_rd - grad2.∇ℓθᵤ)) ≈ 0 atol = _TOL
     @test sum(abs.(grad_mod_zy - grad3.∇ℓθᵤ)) ≈ 0 atol = _TOL
+    ## Checks
+    _output = check_gradients(_RNG, objectiveLowerDim, [:ForwardDiff, :ReverseDiff, :Zygote]; printoutput = false)
+    @test sum(abs.(_output.ℓobjective_gradient_diff)) ≈ 0 atol = _TOL
+    ## Results
+    ℓDensityResult(objectiveLowerDim, theta_unconstrained)
+    ℓDensityResult(objectiveLowerDim)
+    ℓGradientResult(grad1.θᵤ , grad1.ℓθᵤ , grad1.∇ℓθᵤ)
+    ## Update DiffTune
+    ModelWrappers.update(autodiff_fd, objectiveLowerDim)
+    ModelWrappers.update(autodiff_rd, objectiveLowerDim)
+    ModelWrappers.update(autodiff_zyg, objectiveLowerDim)
+    ## Config DiffTune
+    theta_unconstrained2 = randn(length(objectiveLowerDim))
+    ModelWrappers._config(ModelWrappers.ADForward(), objectiveLowerDim, theta_unconstrained2)
+    ModelWrappers._config(ModelWrappers.ADReverse(), objectiveLowerDim, theta_unconstrained2)
+    ModelWrappers._config(ModelWrappers.ADReverseUntaped(), objectiveLowerDim, theta_unconstrained2)
+    ModelWrappers._config(ModelWrappers.ADZygote(), objectiveLowerDim, theta_unconstrained2)
 end
 
 ############################################################################################
@@ -105,4 +137,22 @@ zyg = DiffObjective(objectiveExample2, AutomaticDiffTune(:Zygote, objectiveExamp
     @test grad2.ℓθᵤ isa T && eltype(grad2.θᵤ) == eltype(grad2.∇ℓθᵤ) == T
     @test grad22.ℓθᵤ isa T && eltype(grad22.θᵤ) == eltype(grad22.∇ℓθᵤ) == T
     @test grad3.ℓθᵤ isa T && eltype(grad3.θᵤ) == eltype(grad3.∇ℓθᵤ) == T
+end
+
+############################################################################################
+#Tune Analytic
+function fun1(objective::Objective{<:ModelWrapper{M}}, θᵤ::AbstractVector{T}) where {M<:ExampleModel, T<:Real}
+    return zeros(size(θᵤ))
+end
+θᵤ = randn(length(objectiveExample))
+fun1(objectiveExample, θᵤ)
+@testset "AnalyticDiffTune - " begin
+    tune_analytic = AnalyticalDiffTune(fun1)
+    ModelWrappers.update(tune_analytic, objectiveExample)
+    _ld = _log_density(objectiveExample, tune_analytic, θᵤ)
+    _ldg =_log_density_and_gradient(objectiveExample, tune_analytic, θᵤ)
+    @test _ld == _ldg[1]
+    _ldgresult = log_density_and_gradient(objectiveExample, tune_analytic, θᵤ)
+    @test _ld == _ldgresult.ℓθᵤ
+    @test all(_ldgresult.θᵤ .== θᵤ)
 end

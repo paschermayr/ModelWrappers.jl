@@ -46,5 +46,9 @@ include("Differentiation/Differentiation.jl")
 
 ############################################################################################
 #export
+export
+    UpdateBool,
+    UpdateTrue,
+    UpdateFalse
 
 end

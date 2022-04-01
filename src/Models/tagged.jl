@@ -37,6 +37,7 @@ end
 ############################################################################################
 # Basic functions for Tagged struct
 length(tagged::Tagged) = tagged.info.unflatten.unflatten.sz[end]
+paramnames(tagged::Tagged) = keys(tagged.parameter)
 
 #A convenient method for evaluating a prior distribution of a NamedTuple parameter
 function log_prior(tagged::Tagged, θ::NamedTuple)

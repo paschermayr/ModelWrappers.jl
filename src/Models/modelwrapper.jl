@@ -57,7 +57,7 @@ ModelWrapper(parameter::A, flattendefault::F=FlattenDefault()) where {A<:NamedTu
 ############################################################################################
 # Basic functions for Model struct
 length(model::ModelWrapper) = model.info.unflatten.unflatten.sz[end]
-paramnames(model::ModelWrapper) = paramnames(model.val)#keys(model.val), model.info.unflatten.unflatten.lengths)
+paramnames(model::ModelWrapper) = keys(model.val)
 
 ############################################################################################
 # A bunch of functions that can be used/extended for target model in Sampling process
@@ -280,6 +280,7 @@ export
     ModelWrapper,
     simulate,
     length,
+    paramnames,
     fill,
     fill!,
     subset,

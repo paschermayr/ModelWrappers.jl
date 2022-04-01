@@ -1,6 +1,5 @@
 ############################################################################################
 # Basic Functionality
-
 _modelProb = ModelWrapper(ProbModel(), val_dist)
 @testset "Models - basic functionality" begin
     ## Model Length accounting discrete parameter
@@ -28,6 +27,7 @@ end
 ## Model with transforms in lower dimensions
 
 _modelExample = ModelWrapper(ExampleModel(), _val_examplemodel)
+_tagged = Tagged(_modelExample)
 @testset "Models - Model with transforms in lower dimensions" begin
     ## Model Length accounting discrete parameter
     unconstrain(_modelExample)
@@ -48,6 +48,11 @@ _modelExample = ModelWrapper(ExampleModel(), _val_examplemodel)
     ## Check if densities match
     @test log_prior(_modelExample) + log_abs_det_jac(_modelExample) ≈
           log_prior_with_transform(_modelExample)
+    ## Check utility functions
+    @test length(_modelExample) == 23
+    @test ModelWrappers.paramnames(_modelExample) == keys(_val_examplemodel)
+    fill(_modelExample, _tagged, _modelExample.val)
+    fill!(_modelExample, _tagged, _modelExample.val)
 end
 
 ############################################################################################
