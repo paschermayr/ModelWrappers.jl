@@ -22,7 +22,7 @@ end
         [[[Distributions.Normal(), Distributions.Normal()], [Distributions.Normal(), Distributions.Normal()]],
         [Inf, Distributions.Normal(), Distributions.Normal()]]
     )
-    @test !_checkprior([
+    @test _checkprior([
         [[Distributions.Normal(), Distributions.Normal()], [Distributions.Normal(), Distributions.Normal()]],
         [Distributions.Normal(), Distributions.Normal()]
     ])
