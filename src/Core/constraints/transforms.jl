@@ -36,8 +36,8 @@ Fill array with elements of vec. Not exported.
     return buffer
 end
 function ChainRulesCore.rrule(
-    ::typeof(fill_array!), mat::AbstractMatrix{R}, v::Union{R,AbstractVector{R}}
-) where {R<:Real}
+    ::typeof(fill_array!), mat::AbstractMatrix{R}, v::Union{T,AbstractVector{T}}
+) where {R<:Real,T<:Real}
     # forward pass: Fill Matrix with Vector elements
     L = fill_array!(mat, v)
     # backward pass: Fill Vector with Matrix elements
@@ -102,8 +102,8 @@ Inplace version of Simplex_from_flatten. Not exported.
 
 """
 function Simplex_from_flatten!(
-    buffer::AbstractVector{R}, x_vec::Union{R,AbstractVector{R}}
-) where {R<:Real}
+    buffer::AbstractVector{R}, x_vec::Union{T,AbstractVector{T}}
+) where {R<:Real,T<:Real}
     @inbounds for iter in eachindex(x_vec)
         buffer[iter] = x_vec[iter]
     end
@@ -111,8 +111,8 @@ function Simplex_from_flatten!(
     return buffer
 end
 function ChainRulesCore.rrule(
-    ::typeof(Simplex_from_flatten!), p::AbstractVector{R}, v::Union{R,AbstractVector{R}}
-) where {R<:Real}
+    ::typeof(Simplex_from_flatten!), p::AbstractVector{R}, v::Union{T,AbstractVector{T}}
+) where {R<:Real,T<:Real}
     # forward pass: From k-1 to k dimensions
     L = Simplex_from_flatten!(p, v)
     # backward pass: From k to k-1 dimensions

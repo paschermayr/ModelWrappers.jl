@@ -2,10 +2,6 @@
 # Basic Functionality
 _modelProb = ModelWrapper(ProbModel(), val_dist)
 @testset "Models - basic functionality" begin
-    ## Model Length accounting discrete parameter
-    unconstrain(_modelProb)
-    flatten(_modelProb)
-    unconstrain_flatten(_modelProb)
     ## Type Check 1 - Constrain/Unconstrain
     theta_unconstrained_vec = randn(length(_modelProb))
     theta_unconstrained = unflatten(_modelProb, theta_unconstrained_vec)
@@ -21,6 +17,18 @@ _modelProb = ModelWrapper(ProbModel(), val_dist)
     ## Check if densities match
     @test log_prior(_modelProb) + log_abs_det_jac(_modelProb) ≈
           log_prior_with_transform(_modelProb)
+    ## Utility functions
+    unconstrain(_modelProb)
+    flatten(_modelProb)
+    unconstrain_flatten(_modelProb)
+    simulate(_modelProb)
+    fill(_modelProb, _modelProb.val)
+    fill!(_modelProb, _modelProb.val)
+    subset(_modelProb, keys(_modelProb.val))
+    unflatten!(_modelProb, flatten(_modelProb))
+    unflatten_constrain!(_modelProb, unconstrain_flatten(_modelProb))
+    sample(_RNG, _modelProb)
+    sample!(_RNG, _modelProb)
 end
 
 ############################################################################################

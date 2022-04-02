@@ -150,13 +150,18 @@ end
     length(objectiveExample)
     ModelWrappers.paramnames(objectiveExample)
     theta_unconstrained = randn(length(modelExample))
+    Objective(objectiveExample.model, objectiveExample.data, objectiveExample.tagged, objectiveExample.temperature)
+    Objective(objectiveExample.model, objectiveExample.data, objectiveExample.tagged)
+    Objective(objectiveExample.model, objectiveExample.data, keys(objectiveExample.tagged.parameter)[1:2])
+    Objective(objectiveExample.model, objectiveExample.data, keys(objectiveExample.tagged.parameter)[1])
+    Objective(objectiveExample.model, objectiveExample.data)
 
     predict(_RNG, objectiveExample)
     generate(_RNG, objectiveExample)
     generate(_RNG, objectiveExample, ModelWrappers.UpdateTrue())
     generate(_RNG, objectiveExample, ModelWrappers.UpdateFalse())
     dynamics(objectiveExample)
-    
+
     @test abs(
         (log_prior(modelExample) + log_abs_det_jac(modelExample)) -
         log_prior_with_transform(modelExample),

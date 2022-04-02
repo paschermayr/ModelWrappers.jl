@@ -34,6 +34,14 @@ _params = [sample(_modelProb, _targets[iter]) for iter in eachindex(_syms)]
         _θ2, _ = flatten(theta_constrained2, _target.info.constraint)
         @test sum(abs.(_θ1 - _θ2)) ≈ 0 atol = _TOL
         ## Utility functions
+        log_prior(_target, _model_temp.val)
+        θ_flat = flatten(_model_temp, _target)
+        unflatten(_model_temp, _target, θ_flat)
+        unflatten!(_model_temp, _target, θ_flat)
+        θ_flat_unconstrained = unconstrain_flatten(_model_temp, _target)
+        unflatten_constrain!(_model_temp, _target, θ_flat_unconstrained)
+        log_prior_with_transform(_model_temp, _target)
+
         subset(_model_temp, _target)
         ModelWrappers.length(_target)
         ModelWrappers.paramnames(_target)
@@ -42,5 +50,6 @@ _params = [sample(_modelProb, _targets[iter]) for iter in eachindex(_syms)]
         _model_temp.val
         sample(_RNG, _model_temp, _target)
         sample!(_RNG, _model_temp, _target)
+
     end
 end

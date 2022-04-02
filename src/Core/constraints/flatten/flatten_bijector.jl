@@ -53,7 +53,8 @@ function flatten(
     =#
     #!NOTE: CorrBijector seems to unconstrain to a Upper Diagonal Matrix
     idx_upper = tag(x, true, false)
-    buffer = ones(T, size(x))
+    #!NOTE: Buffer should be of type R, not T, as we want same type back afterwards
+    buffer = ones(R, size(x))
     function CorrMatrix_from_vec(x_vec::Union{<:Real,AbstractVector{<:Real}})
         return Symmetric_from_flatten!(buffer, x_vec, idx_upper)
     end
@@ -87,7 +88,8 @@ function flatten(
 ) where {T<:AbstractFloat,F<:FlattenTypes,R<:Real,C<:Union{Distributions.InverseWishart, Bijectors.PDBijector}}
     #!NOTE: PDBijector seems to unconstrain to a Lower Diagonal Matrix
     idx_upper = tag(x, false, true) #tag(x, true, true)
-    buffer = zeros(T, size(x))
+    #!NOTE: Buffer should be of type R, not T, as we want same type back afterwards
+    buffer = zeros(R, size(x))
     function Symmetric_from_vec(x_vec::Union{<:Real,AbstractVector{<:Real}})
         return Symmetric_from_flatten!(buffer, x_vec, idx_upper)
     end
@@ -128,7 +130,8 @@ function flatten(
     (3) Consequently, we can flatten in length(x)-1 dimensions, and unflatten back to length(x) by summing up elements for length(x)'s element.
     This works for both constrained/unconstrained.
 =#
-    buffer = zeros(T, length(x))
+    #!NOTE: Buffer should be of type R, not T, as we want same type back afterwards
+    buffer = zeros(R, length(x))
     function unflatten_Simplex(x_vec)
         return Simplex_from_flatten!(buffer, x_vec)
     end

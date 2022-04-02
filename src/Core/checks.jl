@@ -71,6 +71,7 @@ function _checkprior(prior::N) where {N<:NamedTuple}
 end
 
 ############################################################################################
+#=
 """
 $(SIGNATURES)
 Check if all keys of 'x' and 'y' match - works with Nested Tuples - and return Bool. Not exported.
@@ -97,7 +98,7 @@ function _checkkeys(x::NamedTuple{Kx,Tx}, y::NamedTuple{Ky,Ty}) where {Kx,Tx,Ky,
     ## Else return true
     return true
 end
-
+=#
 ############################################################################################
 """
 $(SIGNATURES)
@@ -114,7 +115,7 @@ end
 function _checksampleable(constraint::S) where {S<:Distributions.Distribution}
     return true
 end
-function _checksampleable(constraint::Vector{T}) where {T<:Real}
+function _checksampleable(constraint::Vector{T}) where {T}
     @inbounds @simd for iter in eachindex(constraint)
         if !_checksampleable(constraint[iter])
             return false

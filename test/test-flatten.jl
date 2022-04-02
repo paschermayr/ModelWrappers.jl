@@ -8,6 +8,29 @@
         param = _params[sym]
         θ = _get_val(param)
         constraint = _get_constraint(param)
+        ## Check all flatten possibilities
+        for unflat in unflattenmethods
+            for flat in flattenmethods
+                for floattypes in flattentypes
+                    #println(unflat, " ", flat, " ", floattypes)
+                    flatdefault = FlattenDefault(;
+                        output = floattypes,
+                        flattentype = flat,
+                        unflattentype = unflat
+                    )
+                    θ_flat, _unflatten = flatten(flatdefault, θ, constraint)
+                    θ_unflat = _unflatten(θ_flat)
+                    #!NOTE Do not test if FlattenContinuous and empty Integer Param struct is evaluated
+                    if flat isa FlattenAll || θ_flat isa Vector{T} where {T<:AbstractFloat}
+                        @test eltype(θ_flat) == floattypes
+                    end
+                    #!NOTE: Check types if UnflattenStrict
+                    if unflat isa UnflattenStrict
+                        @test typeof(θ_unflat) == typeof(θ)
+                    end
+                end
+            end
+        end
         @test _checkparams(param)
         @test _checkfinite(θ)
         @test _checkprior(constraint)
@@ -60,6 +83,28 @@ end
         param = _params[sym]
         θ = _get_val(param)
         constraint = _get_constraint(param)
+        for unflat in unflattenmethods
+            for flat in flattenmethods
+                for floattypes in flattentypes
+                #    println(unflat, " ", flat, " ", floattypes)
+                    flatdefault = FlattenDefault(;
+                        output = floattypes,
+                        flattentype = flat,
+                        unflattentype = unflat
+                    )
+                    θ_flat, _unflatten = flatten(flatdefault, θ, constraint)
+                    θ_unflat = _unflatten(θ_flat)
+                    #!NOTE Do not test if FlattenContinuous and empty Integer Param struct is evaluated
+                    if flat isa FlattenAll || θ_flat isa Vector{T} where {T<:AbstractFloat}
+                        @test eltype(θ_flat) == floattypes
+                    end
+                    #!NOTE: Check types if UnflattenStrict
+                    if unflat isa UnflattenStrict
+                        @test typeof(θ_unflat) == typeof(θ)
+                    end
+                end
+            end
+        end
         @test _checkparams(param)
         @test _checkfinite(θ)
         bij = _to_bijector(constraint)

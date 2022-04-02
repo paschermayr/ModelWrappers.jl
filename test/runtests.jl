@@ -29,7 +29,6 @@ using ModelWrappers:
     _to_inv_bijector,
     flatten,
     constrain,
-    _checkkeys,
     _get_val,
     _get_constraint,
     log_density,

@@ -15,6 +15,10 @@ N = 10^3
 df_strict = FlattenDefault(Float64, FlattenContinuous(), UnflattenStrict())
 df_AD = FlattenDefault(Float64, FlattenContinuous(), UnflattenAD())
 
+unflattenmethods = [UnflattenStrict(), UnflattenAD()]
+flattenmethods = [FlattenAll(), FlattenContinuous()]
+flattentypes = [Float64, Float32]
+
 ############################################################################################
 #Probabilistic Parameters - Some selected distributions
 struct ProbModel <: ModelName end

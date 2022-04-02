@@ -6,6 +6,10 @@
     @test _checkfinite(.1)
     @test !_checkfinite(Inf)
     @test _checkfinite( (.1, .2, [.2, 3.], zeros(2,3)))
+
+    @test !_checkfinite([.1, -Inf, 3.])
+    @test !_checkfinite([[2. 3. ; 4. 5], [.1, -Inf, 3.]])
+
 end
 
 @testset "Core - Checkprior" begin
@@ -13,6 +17,7 @@ end
     @test !_checkprior(Inf)
     @test _checkprior([Distributions.Normal(), Distributions.Normal()])
     @test !_checkprior([Inf, Distributions.Normal(), Distributions.Normal()])
+    @test !_checkprior([[Distributions.Normal(), Distributions.Normal()], [Inf, Distributions.Normal(), Distributions.Normal()]])
 end
 
 @testset "Core - Checksampleable" begin
@@ -20,6 +25,7 @@ end
     @test !_checksampleable(Fixed())
     @test _checksampleable([Distributions.Normal(), Distributions.Normal()])
     @test !_checksampleable([Fixed(), Distributions.Normal(), Distributions.Normal()])
+    @test !_checksampleable([[Distributions.Normal(), Distributions.Normal()], [Fixed(), Distributions.Normal(), Distributions.Normal()]])
 end
 
 @testset "Core - Checkparams" begin
@@ -93,6 +99,13 @@ end
         (a = Unconstrained(), c = Fixed(), b = [Normal(), Normal()])
     )
     @test _names2 == ["a", "b1", "b2"]
+    _names3 = ModelWrappers.paramnames(
+        (:a,:c,:b),
+        FlattenDefault(),
+        (a = 1., c = 2., b = [3., 4.]),
+        (a = Unconstrained(), c = Fixed(), b = [Normal(), Normal()])
+    )
+    @test all(_names2 .== _names3)
 end
 
 @testset "Core - paramcount" begin
@@ -101,4 +114,10 @@ end
         (a = 1., c = 2., b = [3., 4.])
     )
     @test _vals == (1,1,2)
+    _vals2 = ModelWrappers.paramcount(
+        (:a,:c,:b),
+        FlattenDefault(),
+        (a = 1., c = 2., b = [3., 4.])
+    )
+    @test all(_vals .== _vals2)
 end
