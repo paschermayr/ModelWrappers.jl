@@ -49,7 +49,8 @@ _params = [sample(_modelProb, _targets[iter]) for iter in eachindex(_syms)]
         fill!(_model_temp, _target, _model_temp.val)
         _model_temp.val
         sample(_RNG, _model_temp, _target)
+        sample(_model_temp, _target)
         sample!(_RNG, _model_temp, _target)
-
+        sample!(_model_temp, _target)
     end
 end

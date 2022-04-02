@@ -28,7 +28,9 @@ _modelProb = ModelWrapper(ProbModel(), val_dist)
     unflatten!(_modelProb, flatten(_modelProb))
     unflatten_constrain!(_modelProb, unconstrain_flatten(_modelProb))
     sample(_RNG, _modelProb)
+    sample(_modelProb)
     sample!(_RNG, _modelProb)
+    sample!(_modelProb)
 end
 
 ############################################################################################

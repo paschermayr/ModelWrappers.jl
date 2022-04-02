@@ -18,6 +18,14 @@ end
     @test _checkprior([Distributions.Normal(), Distributions.Normal()])
     @test !_checkprior([Inf, Distributions.Normal(), Distributions.Normal()])
     @test !_checkprior([[Distributions.Normal(), Distributions.Normal()], [Inf, Distributions.Normal(), Distributions.Normal()]])
+    @test !_checkprior(
+        [[[Distributions.Normal(), Distributions.Normal()], [Distributions.Normal(), Distributions.Normal()]],
+        [Inf, Distributions.Normal(), Distributions.Normal()]]
+    )
+    @test !_checkprior([
+        [[Distributions.Normal(), Distributions.Normal()], [Distributions.Normal(), Distributions.Normal()]],
+        [Distributions.Normal(), Distributions.Normal()]
+    ])
 end
 
 @testset "Core - Checksampleable" begin
@@ -26,6 +34,14 @@ end
     @test _checksampleable([Distributions.Normal(), Distributions.Normal()])
     @test !_checksampleable([Fixed(), Distributions.Normal(), Distributions.Normal()])
     @test !_checksampleable([[Distributions.Normal(), Distributions.Normal()], [Fixed(), Distributions.Normal(), Distributions.Normal()]])
+    @test !_checksampleable([
+    [[Distributions.Normal(), Distributions.Normal()], [Distributions.Normal(), Distributions.Normal()]],
+    [Fixed(), Distributions.Normal(), Distributions.Normal()]
+    ])
+    @test _checksampleable([
+    [[Distributions.Normal(), Distributions.Normal()], [Distributions.Normal(), Distributions.Normal()]],
+    [Distributions.Normal(), Distributions.Normal()]
+    ])
 end
 
 @testset "Core - Checkparams" begin
