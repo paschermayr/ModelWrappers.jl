@@ -2,6 +2,11 @@
 # Checks
 ############################################################################################
 
+@testset "Core - Param" begin
+    param = Param(0.1, Normal())
+    @test flatten(param) == flatten(param.val, param.constraint)
+end
+
 @testset "Core - Checkfinite" begin
     @test _checkfinite(.1)
     @test !_checkfinite(Inf)
@@ -26,6 +31,8 @@ end
         [[Distributions.Normal(), Distributions.Normal()], [Distributions.Normal(), Distributions.Normal()]],
         [Distributions.Normal(), Distributions.Normal()]
     ])
+    @test _checkprior([Distributions.Normal() Distributions.Normal() ; Distributions.Normal() Distributions.Normal()])
+    @test !_checkprior([Distributions.Normal() Distributions.Normal() ; Fixed() Distributions.Normal()])
 end
 
 @testset "Core - Checksampleable" begin
@@ -42,6 +49,8 @@ end
     [[Distributions.Normal(), Distributions.Normal()], [Distributions.Normal(), Distributions.Normal()]],
     [Distributions.Normal(), Distributions.Normal()]
     ])
+    @test _checksampleable([Distributions.Normal() Distributions.Normal() ; Distributions.Normal() Distributions.Normal()])
+    @test !_checksampleable([Distributions.Normal() Distributions.Normal() ; Fixed() Distributions.Normal()])
 end
 
 @testset "Core - Checkparams" begin

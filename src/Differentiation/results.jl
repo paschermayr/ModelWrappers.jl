@@ -107,7 +107,7 @@ end
 
 ############################################################################################
 function checkfinite(result::T) where {T<:ℓObjectiveResult}
-    return isfinite(result.ℓθᵤ) ? true : false
+    return isfinite(result.ℓθᵤ) && _checkfinite(result.θᵤ) ? true : false
 end
 function checkfinite(
     result₀::T, result::T, min_Δ::Float64=min_Δ
@@ -124,6 +124,10 @@ end
 
 ############################################################################################
 # Export
-export ℓObjectiveResult,
-    ℓGradientResult, ℓDensityResult, log_density, log_density_and_gradient#,
+export
+    ℓObjectiveResult,
+    ℓGradientResult,
+    ℓDensityResult,
+    log_density,
+    log_density_and_gradient#,
 #log_density_and_hessian

@@ -50,7 +50,7 @@ end
 function _checkprior(prior::S) where {S<:Distributions.Distribution}
     return true
 end
-function _checkprior(prior::Array{T}) where {T}
+function _checkprior(prior::AbstractVector{T}) where {T}
     @inbounds @simd for iter in eachindex(prior)
         if !_checkprior(prior[iter])
             return false
@@ -115,7 +115,7 @@ end
 function _checksampleable(constraint::S) where {S<:Distributions.Distribution}
     return true
 end
-function _checksampleable(constraint::Vector{T}) where {T}
+function _checksampleable(constraint::AbstractVector{T}) where {T}
     @inbounds @simd for iter in eachindex(constraint)
         if !_checksampleable(constraint[iter])
             return false

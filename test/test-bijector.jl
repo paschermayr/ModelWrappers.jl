@@ -44,6 +44,7 @@ end
     inv_bij = inverse(bij)
     @test ModelWrappers._to_bijector(d) == ModelWrappers._to_bijector(bij)
     @test ModelWrappers._checkparam(covmat, bij)
+    @test length(covmat) == length(ModelWrappers.flatten_array(covmat))
 # Flatten
     _vals, unflat = flatten(covmat, bij)
     @test length(_vals) == 3
@@ -60,6 +61,7 @@ end
     _tag = ModelWrappers.tag(covmat, false, true)
     _vals4 = ModelWrappers.flatten_Symmetric(covmat, _tag)
     @test length(_vals4) == 3
+    @test all(ModelWrappers.Symmetric_from_flatten(_vals4, _tag) .≈ covmat)
 # AD flatten
     _vals, unflat = flatten(FlattenDefault(;unflattentype = UnflattenAD()), covmat, bij)
     _vals_constrained = unflat(_vals)

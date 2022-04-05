@@ -3,6 +3,33 @@
 modelExample = ModelWrapper(ExampleModel(), _val_examplemodel)
 objectiveExample = Objective(modelExample, (data1, data2, data3, _idx))
 
+@testset "AutoDiffContainer - Log Objective Results" begin
+    tune_fwd = AutomaticDiffTune(:ForwardDiff, objectiveExample)
+    fwd = DiffObjective(objectiveExample, tune_fwd)
+    theta_unconstrained = randn(_RNG, length(modelExample))
+    ## Compute logdensity
+    log_density(objectiveExample)
+    theta_unconstrained2 = deepcopy(theta_unconstrained)
+    #!NOTE: 10th parameter in likelihood for example, so is not compiled away in Reverse Tape
+    theta_unconstrained2[10] = Inf
+    ## Check if result is finite
+    _ld_fin = log_density(objectiveExample, copy(theta_unconstrained))
+    _ld_inf = log_density(objectiveExample, copy(theta_unconstrained2))
+    _ld_inf_fault = log_density(objectiveExample, copy(theta_unconstrained))
+    _ld_inf_fault.θᵤ[10] = Inf
+
+    @test ModelWrappers.checkfinite(_ld_fin)
+    @test !ModelWrappers.checkfinite(_ld_inf)
+    @test !ModelWrappers.checkfinite(_ld_inf_fault)
+
+    @test ModelWrappers.checkfinite(_ld_inf, _ld_fin) #Infinite to Finite
+    @test !ModelWrappers.checkfinite(_ld_fin, _ld_inf) #Finite to Infinite
+
+    @test ModelWrappers.checkfinite(-Inf, 10.0, _ld_fin) #Infinite to Finite
+    @test !ModelWrappers.checkfinite(10.0, -Inf, _ld_fin) #Finite to Infinite
+    @test !ModelWrappers.checkfinite(-Inf, 10.0, _ld_inf) #Finite to Infinite
+end
+
 @testset "AutoDiffContainer - Log Objective AutoDiff compatibility - Vectorized Model" begin
     ## Assign DiffTune
     tune_fwd = AutomaticDiffTune(:ForwardDiff, objectiveExample)
