@@ -71,35 +71,6 @@ function _checkprior(prior::N) where {N<:NamedTuple}
 end
 
 ############################################################################################
-#=
-"""
-$(SIGNATURES)
-Check if all keys of 'x' and 'y' match - works with Nested Tuples - and return Bool. Not exported.
-
-# Examples
-```julia
-```
-
-"""
-function _checkkeys(x::NamedTuple{Kx,Tx}, y::NamedTuple{Ky,Ty}) where {Kx,Tx,Ky,Ty}
-    ## Check if all keys in x and y are the same
-    if !all(haskey(x, sym) == haskey(y, sym) for sym in keys(x)) ||
-       !all(haskey(x, sym) == haskey(y, sym) for sym in keys(y))
-        return false
-    end
-    ## Check if any field in x/y is a NamedTuple itself -> if true, check that field first
-    @inbounds @simd for sym in keys(x)
-        if isa(x[sym], NamedTuple)
-            if !_checkkeys(x[sym], y[sym])
-                return false
-            end
-        end
-    end
-    ## Else return true
-    return true
-end
-=#
-############################################################################################
 """
 $(SIGNATURES)
 Check if argument is not fixed. Returns NamedTuple with true/false. Needed in addition to _checkprior for nested NamedTuples. Not exported.
@@ -109,7 +80,7 @@ Check if argument is not fixed. Returns NamedTuple with true/false. Needed in ad
 ```
 
 """
-function _checksampleable(constraint::Fixed)
+function _checksampleable(constraint)
     return false
 end
 function _checksampleable(constraint::S) where {S<:Distributions.Distribution}
@@ -136,6 +107,7 @@ function _checksampleable(constraint::NamedTuple{names}) where {names}
 end
 
 ############################################################################################
+#=
 """
 $(SIGNATURES)
 Check if provided val-constraint combination is valid for Param struct. Not exported.
@@ -146,16 +118,18 @@ Check if provided val-constraint combination is valid for Param struct. Not expo
 
 """
 function _checkparam(
-    _rng::Random.AbstractRNG, val::AbstractArray, constraint::AbstractArray
+    _rng::Random.AbstractRNG,
+    constraint::AbstractArray,
+    val::AbstractArray,
 )
     return all(
-        map(val, constraint) do valᵢ, constraintᵢ
-            _checkparam(_rng, valᵢ, constraintᵢ)
+        map(constraint, val) do constraintᵢ, valᵢ
+            _checkparam(_rng, constraintᵢ, valᵢ)
         end,
     )
 end
-_checkparam(val, constraint) = _checkparam(Random.GLOBAL_RNG, val, constraint)
-
+_checkparam(constraint, val) = _checkparam(Random.GLOBAL_RNG, constraint, val)
+=#
 ############################################################################################
 """
 $(SIGNATURES)

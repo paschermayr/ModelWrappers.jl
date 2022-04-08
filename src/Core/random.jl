@@ -8,20 +8,20 @@ Sample from constraint if 'prior'.
 ```
 
 """
-function sample_constraint(_rng::Random.AbstractRNG, prior)
-    return nothing
+function sample_constraint(_rng::Random.AbstractRNG, prior, val)
+    return val
 end
-function sample_constraint(_rng::Random.AbstractRNG, prior::Distributions.Distribution)
+function sample_constraint(_rng::Random.AbstractRNG, prior::Distributions.Distribution, val)
     return rand(_rng, prior)
 end
-function sample_constraint(_rng::Random.AbstractRNG, priorᵥ::Vector{<:Distributions.Distribution})
+function sample_constraint(_rng::Random.AbstractRNG, priorᵥ::Vector{<:Distributions.Distribution}, val::AbstractVector)
     return rand.(_rng, priorᵥ)
 end
-function sample_constraint(_rng::Random.AbstractRNG, priorᵥ::AbstractArray)
-    return map(iter -> sample_constraint(_rng, priorᵥ[iter]), eachindex(priorᵥ))
+function sample_constraint(_rng::Random.AbstractRNG, priorᵥ::AbstractArray, val::AbstractArray)
+    return map(iter -> sample_constraint(_rng, priorᵥ[iter], val[iter]), eachindex(priorᵥ))
 end
-function sample_constraint(_rng::Random.AbstractRNG, priorᵥ::NamedTuple{names}) where {names}
-    return NamedTuple{names}(Tuple(map(iter -> sample_constraint(_rng, priorᵥ[iter]), names)))
+function sample_constraint(_rng::Random.AbstractRNG, priorᵥ::NamedTuple{names}, val::NamedTuple) where {names}
+    return NamedTuple{names}(Tuple(map(iter -> sample_constraint(_rng, priorᵥ[iter], val[iter]), names)))
 end
 
 ############################################################################################
@@ -79,30 +79,5 @@ function log_prior_with_transform(priorᵥ::A, θ::B) where {A<:NamedTuple,B<:Na
 end
 
 ############################################################################################
-"""
-$(SIGNATURES)
-Evaluate eventual Jacobian adjustments from transformation of 'b' at 'θ'.
-
-# Examples
-```julia
-```
-
-"""
-function log_abs_det_jac(b::Bijectors.Identity, θ::T) where {T}
-    #!NOTE: Allow Fixed Params of arbitrary size work nice with bijectors
-    return 0.0
-end
-function log_abs_det_jac(b::S, θ::T) where {S<:Bijectors.Bijector,T}
-    #!NOTE: See Bijectors.logabsdetjac implementation for '-'
-    return -Bijectors.logabsdetjac(b, θ)
-end
-function log_abs_det_jac(bᵥ::AbstractArray, θ::AbstractArray) where {T}
-    return sum(map(log_abs_det_jac, bᵥ, θ))
-end
-function log_abs_det_jac(bᵥ::A, θ::B) where {A<:NamedTuple,B<:NamedTuple}
-    return sum(map(log_abs_det_jac, bᵥ, θ))
-end
-
-############################################################################################
 #export
-export sample_constraint, log_prior, log_prior_with_transform, log_abs_det_jac
+export sample_constraint, log_prior, log_prior_with_transform

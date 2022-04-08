@@ -1,9 +1,8 @@
 ############################################################################################
-# Include files
-include("flatten/flatten.jl")
-include("utility.jl")
-include("checks.jl")
-include("random.jl")
+include("float.jl")
+include("float_vector.jl")
+include("float_array.jl")
+include("integer.jl")
 
 ############################################################################################
 # Export

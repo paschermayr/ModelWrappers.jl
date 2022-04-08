@@ -22,7 +22,7 @@ using UnPack: UnPack, @unpack, @pack!
 using Random: Random, AbstractRNG, GLOBAL_RNG
 
 #!NOTE: These libraries are relevant for transform part
-using LinearAlgebra: LinearAlgebra, Diagonal, LowerTriangular, tril!
+using LinearAlgebra: LinearAlgebra, Diagonal, LowerTriangular, tril!, diag, issymmetric
 using Distributions: Distributions, Distribution, logpdf
 using Bijectors:
     Bijectors, Bijector, logpdf_with_trans,

@@ -1,10 +1,4 @@
 ############################################################################################
-# A bunch of functions to reduce dimensionality of parameters. Need ChainRulesCore support if mutating.
-# !NOTE: flatten/unflatten is purely to change shape of parameter, constrain/unconstrain functions operate separately.
-# !NOTE 2: Currently Bijectors.jl handles all transformations, but I am open to integrate dimensionality reductions below for the flatten/unflatten part.
-# !NOTE 3: This will work fine even with Bijectors, as long as original dimensionality is mapped back via unflatten.
-
-############################################################################################
 """
 $(SIGNATURES)
 Flatten array x. Not exported.

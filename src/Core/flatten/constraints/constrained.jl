@@ -25,13 +25,16 @@ end
 =#
 
 ############################################################################################
-function _to_bijector(info::Constrained)
-    return Bijectors.TruncatedBijector(info.min, info.max)
+function construct_transform(info::Constrained, val)
+    transform = Bijectors.TruncatedBijector(info.min, info.max)
+    return transform, Bijectors.inverse(transform)
 end
 
 ############################################################################################
-function _checkparam(
-    _rng::Random.AbstractRNG, val::R, constraint::Constrained
+function _check(
+    _rng::Random.AbstractRNG,
+    constraint::Constrained,
+    val::R,
 ) where {R<:Real}
     ArgCheck.@argcheck typeof(val) == typeof(constraint.min) == typeof(constraint.max) "Type of Constrained boundaries must match type of val"
     ArgCheck.@argcheck constraint.min < val < constraint.max "val must be between boundaries"
@@ -40,12 +43,31 @@ end
 
 ############################################################################################
 # Constrained constraint -> just flatten
-function flatten(
-    output::Type{T}, flattentype::F, unflattentype::U, x, constraint::Constrained
+function construct_flatten(
+    output::Type{T},
+    flattentype::F,
+    unflattentype::U,
+    constraint::Constrained,
+    x
 ) where {T<:AbstractFloat,F<:FlattenTypes,U<:UnflattenTypes}
-    return flatten(T, flattentype, unflattentype, x)
+    return construct_flatten(T, flattentype, unflattentype, x)
 end
 
 ############################################################################################
-# Export
-export Constrained, flatten
+#=
+!NOTE: For this constraint, we use a Bijector as Transformer, so we do not need to add a new functors
+1. MyTransformer <: AbstractTransformer, MyInverseTransformer <: AbstractTransformer
+2. define a function construct_transform(MyConstraint, val) -> MyTransformer, MyInverseTransformer
+3. overload unconstrain and log_abs_det_jac on MyTransformer.
+4. overload constrain on MyInverseTransformer.
+=#
+
+############################################################################################
+#Export
+export
+    Constrained,
+    construct_flatten,
+    construct_transform,
+    constrain,
+    unconstrain,
+    log_abs_det_jac

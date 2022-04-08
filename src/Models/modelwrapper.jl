@@ -47,7 +47,7 @@ function ModelWrapper(
     val = _get_val(parameter)
     constraint = _get_constraint(parameter)
     ## Create ParameterInfo struct
-    paraminfo = ParameterInfo(val, constraint, flattendefault)
+    paraminfo = ParameterInfo(constraint, val, flattendefault)
     ## Return ModelWrapper
     return ModelWrapper(val, paraminfo, id)
 end
@@ -56,7 +56,7 @@ ModelWrapper(parameter::A, flattendefault::F=FlattenDefault()) where {A<:NamedTu
 
 ############################################################################################
 # Basic functions for Model struct
-length(model::ModelWrapper) = model.info.unflatten.unflatten.sz[end]
+length(model::ModelWrapper) = model.info.reconstruct.unflatten.strict._unflatten.sz[end]
 paramnames(model::ModelWrapper) = keys(model.val)
 
 ############################################################################################
@@ -116,7 +116,7 @@ Unconstrain 'model' values and return as NamedTuple.
 
 """
 function unconstrain(model::ModelWrapper)
-    return unconstrain(model.info.b, model.val)
+    return unconstrain(model.info.transform, model.val)
 end
 
 """
@@ -129,8 +129,7 @@ Flatten 'model' values and return as vector.
 
 """
 function flatten(model::ModelWrapper)
-    θ, _ = flatten(model.info.flattendefault, model.val, model.info.constraint)
-    return θ
+    return flatten(model.info.reconstruct, model.val)
 end
 
 """
@@ -143,8 +142,7 @@ Flatten and unconstrain 'model' values and return as vector.
 
 """
 function unconstrain_flatten(model::ModelWrapper)
-    θ, _ = flatten(model.info.flattendefault, unconstrain(model), model.info.constraint)
-    return θ
+    return flatten(model.info.reconstruct, unconstrain(model))
 end
 
 #########################################
@@ -158,7 +156,7 @@ Unlatten Vector 'θ' given constraints from 'model' and return as NamedTuple.
 
 """
 function unflatten(model::ModelWrapper, θ::AbstractVector{T}) where {T<:Real}
-    return model.info.unflatten(θ)
+    return unflatten(model.info.reconstruct, θ)
 end
 
 """
@@ -185,7 +183,7 @@ Constrain and Unflatten vector 'θᵤ' given 'model' constraints.
 
 """
 function unflatten_constrain(model::ModelWrapper, θᵤ::AbstractVector{T}) where {T<:Real}
-    return constrain(model.info.b⁻¹, model.info.unflatten(θᵤ))
+    return constrain(model.info.transform, unflatten(model, θᵤ))
 end
 
 """
@@ -213,7 +211,7 @@ Sample from 'model' prior and return as NamedTuple.
 
 """
 function sample(_rng::Random.AbstractRNG, model::ModelWrapper)
-    return sample_constraint(_rng, model.info.constraint)
+    return sample_constraint(_rng, model.info.constraint, model.val)
 end
 sample(model::ModelWrapper) = sample(Random.GLOBAL_RNG, model)
 
@@ -270,7 +268,7 @@ Evaluate eventual Jacobian adjustments from transformations at 'model' values.
 
 """
 function log_abs_det_jac(model::ModelWrapper)
-    return log_abs_det_jac(model.info.b, model.val)
+    return log_abs_det_jac(model.info.transform.unconstrain, model.val)
 end
 
 ############################################################################################

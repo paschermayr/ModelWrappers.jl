@@ -12,12 +12,9 @@ N = 10^3
 
 ############################################################################################
 # Initiate DefaultFlatten structs for strict and flexible (AD) type conversion:
-df_strict = FlattenDefault(Float64, FlattenContinuous(), UnflattenStrict())
-df_AD = FlattenDefault(Float64, FlattenContinuous(), UnflattenAD())
-
-unflattenmethods = [UnflattenStrict(), UnflattenAD()]
-flattenmethods = [FlattenAll(), FlattenContinuous()]
-flattentypes = [Float64, Float32]
+outputtypes = [Float32, Float64]
+flattentypes = [FlattenContinuous(), FlattenAll()]
+unflattenmethods = [UnflattenStrict(), UnflattenFlexible()]
 
 ############################################################################################
 #Probabilistic Parameters - Some selected distributions

@@ -30,8 +30,8 @@ _params = [sample(_modelProb, _targets[iter]) for iter in eachindex(_syms)]
         )
         @test typeof(theta_constrained) == typeof(_model_temp.val)
         @test typeof(theta_constrained2) == typeof(_model_temp.val)
-        _θ1, _ = flatten(theta_constrained, _model_temp.info.constraint)
-        _θ2, _ = flatten(theta_constrained2, _target.info.constraint)
+        _θ1  = flatten(_model_temp.info.reconstruct, theta_constrained)
+        _θ2  = flatten(_target.info.reconstruct, theta_constrained2)
         @test sum(abs.(_θ1 - _θ2)) ≈ 0 atol = _TOL
         ## Utility functions
         log_prior(_target, _model_temp.val)

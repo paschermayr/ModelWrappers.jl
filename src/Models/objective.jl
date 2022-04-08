@@ -16,7 +16,7 @@ struct Objective{M<:ModelWrapper, D, T<:Tagged, F<:AbstractFloat} <: BaytesCore.
         model::M,
         data::D,
         tagged::T,
-        temperature::F = model.info.flattendefault.output(1.0)
+        temperature::F = model.info.reconstruct.default.output(1.0)
     ) where {M<:ModelWrapper,D,T<:Tagged,F<:AbstractFloat}
     ArgCheck.@argcheck 0.0 < temperature <= 1.0 "Temperature has to be bounded between 0.0 and 1.0"
         return new{M,D,T,F}(model, data, tagged, temperature)
@@ -25,7 +25,7 @@ end
 function Objective(
     model::ModelWrapper{M},
     data::D,
-    temperature::F = model.info.flattendefault.output(1.0)
+    temperature::F = model.info.reconstruct.default.output(1.0)
     ) where {M<:ModelName,D,F<:AbstractFloat}
     return Objective(model, data, Tagged(model), temperature)
 end
@@ -33,7 +33,7 @@ function Objective(
     model::ModelWrapper{M},
     data::D,
     sym::S,
-    temperature::F = model.info.flattendefault.output(1.0)
+    temperature::F = model.info.reconstruct.default.output(1.0)
 ) where {M<:ModelName,D,S<:Union{Symbol,NTuple{k,Symbol} where k},F<:AbstractFloat}
     return Objective(model, data, Tagged(model, sym), temperature)
 end
@@ -107,11 +107,11 @@ end
 function (objective::Objective)(θᵤ::AbstractVector{T}) where {T<:Real}
     @unpack model, data, tagged, temperature = objective
     ## Convert vector θᵤ back to constrained space as NamedTuple
-    θ = constrain(tagged.info.b⁻¹, tagged.info.unflatten_AD(θᵤ))
+    θ = constrain(tagged.info.transform, unflattenAD(tagged.info.reconstruct, θᵤ))
     #!NOTE: There are border cases where θᵤ is still finite, but θ no longer after transformation, so have to cover this separately
     _checkfinite(θ) || return -Inf
     ## logabsdet_jac for transformations
-    ℓjac = log_abs_det_jac(tagged.info.b, θ)
+    ℓjac = log_abs_det_jac(tagged.info.transform.unconstrain, θ)
     _checkfinite(ℓjac) || return -Inf
     ## Evaluate objective
     ℓℒ = objective(merge(model.val, θ))

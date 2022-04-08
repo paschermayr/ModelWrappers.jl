@@ -61,28 +61,6 @@ function _anyparam(val::A) where {A<:NamedTuple}
 end
 
 ############################################################################################
-#=
-"""
-$(SIGNATURES)
-Retrieve all parameter that are not fixed. Not exported.
-
-# Examples
-```julia
-```
-
-"""
-function _param_keys(constraints::NamedTuple)
-    _param = _checkparameter(constraints)
-    _sym = Symbol[]
-    for iter in eachindex(_param)
-        if _anyparam(_param[iter])
-            push!(_sym, iter)
-        end
-    end
-    return _sym
-end
-=#
-############################################################################################
 """
 $(SIGNATURES)
 Return parameter names as a string in increasing order. Not exported.
@@ -111,21 +89,32 @@ Return all parameter names in increasing order. Not exported.
 ```
 
 """
-function paramnames(sym::Symbol, types::F, val, constraint) where {F<:FlattenDefault}
-    val_flattened, unflatten = flatten(types, val, constraint)
+function paramnames(
+    sym::Symbol,
+    types::F,
+    constraint,
+    val
+) where {F<:FlattenDefault}
+    flatten, _ = construct_flatten(types, constraint, val)
+    val_flattened = flatten(val)
     return _paramnames(sym, length(val_flattened))
 end
 function paramnames(
-    sym::NTuple{N,Symbol}, types::F, val, constraint
+    sym::NTuple{N,Symbol},
+    types::F,
+    constraint,
+    val,
 ) where {F<:FlattenDefault,N}
-    val_flattened, unflatten = flatten(types, val, constraint)
-    return _paramnames(sym, unflatten.unflatten.lengths)
+    flatten, unflatten = construct_flatten(types, constraint, val)
+    return _paramnames(sym, unflatten._unflatten.lngth)
 end
 function paramnames(
-    types::F, val::NamedTuple{names}, constraint::NamedTuple
+    types::F,
+    constraint::NamedTuple,
+    val::NamedTuple{names},
 ) where {F<:FlattenDefault,N,names}
     return reduce(
-        vcat, map(fld -> paramnames(fld, types, val[fld], constraint[fld]), names)
+        vcat, map(fld -> paramnames(fld, types, constraint[fld], val[fld]), names)
     )
 end
 
@@ -140,12 +129,13 @@ Count length of nested parameter tuple. Not exported.
 
 """
 function paramcount(sym::Symbol, types::F, val) where {F<:FlattenDefault}
-    val_flattened, unflatten = flatten(types, val)
+    _flatten, _ = construct_flatten(types, val)
+    val_flattened = _flatten(val)
     return length(val_flattened)
 end
 function paramcount(sym::NTuple{N,Symbol}, types::F, val) where {F<:FlattenDefault,N}
-    val_flattened, unflatten = flatten(types, val)
-    return unflatten.unflatten.lengths
+    _flatten, _unflatten = construct_flatten(types, val)
+    return _unflatten._unflatten.lngth
 end
 function paramcount(types::F, val::NamedTuple{names}) where {F<:FlattenDefault,names}
     return map(fld -> paramcount(fld, types, val[fld]), names)

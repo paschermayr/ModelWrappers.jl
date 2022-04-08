@@ -6,13 +6,13 @@ _modelProb = ModelWrapper(ProbModel(), val_dist)
     theta_unconstrained_vec = randn(length(_modelProb))
     theta_unconstrained = unflatten(_modelProb, theta_unconstrained_vec)
     @test typeof(theta_unconstrained) == typeof(_modelProb.val)
-    theta_constrained = constrain(_modelProb.info.b⁻¹, theta_unconstrained)
+    theta_constrained = constrain(_modelProb.info.transform, theta_unconstrained)
     theta_constrained2 = unflatten_constrain(_modelProb, theta_unconstrained_vec)
     @test typeof(theta_constrained) == typeof(_modelProb.val)
     @test typeof(theta_constrained2) == typeof(_modelProb.val)
     ## Type Check 2 - Flatten/Unflatten
-    _θ1, _ = flatten(theta_constrained, _modelProb.info.constraint)
-    _θ2, _ = flatten(theta_constrained2, _modelProb.info.constraint)
+    _θ1, _ = flatten(_modelProb.info.reconstruct, theta_constrained)
+    _θ2, _ = flatten(_modelProb.info.reconstruct, theta_constrained2)
     @test sum(abs.(_θ1 - _θ2)) ≈ 0 atol = _TOL
     ## Check if densities match
     @test log_prior(_modelProb) + log_abs_det_jac(_modelProb) ≈
@@ -47,13 +47,13 @@ _tagged = Tagged(_modelExample)
     theta_unconstrained_vec = randn(length(_modelExample))
     theta_unconstrained = unflatten(_modelExample, theta_unconstrained_vec)
     @test typeof(theta_unconstrained) == typeof(_modelExample.val)
-    theta_constrained = constrain(_modelExample.info.b⁻¹, theta_unconstrained)
+    theta_constrained = constrain(_modelExample.info.transform, theta_unconstrained)
     theta_constrained2 = unflatten_constrain(_modelExample, theta_unconstrained_vec)
     @test typeof(theta_constrained) == typeof(_modelExample.val)
     @test typeof(theta_constrained2) == typeof(_modelExample.val)
     ## Type Check 2 - Flatten/Unflatten
-    _θ1, _ = flatten(theta_constrained, _modelExample.info.constraint)
-    _θ2, _ = flatten(theta_constrained2, _modelExample.info.constraint)
+    _θ1, _ = flatten(_modelExample.info.reconstruct, theta_constrained)
+    _θ2, _ = flatten(_modelExample.info.reconstruct, theta_constrained2)
     @test sum(abs.(_θ1 - _θ2)) ≈ 0 atol = _TOL
     ## Check if densities match
     @test log_prior(_modelExample) + log_abs_det_jac(_modelExample) ≈

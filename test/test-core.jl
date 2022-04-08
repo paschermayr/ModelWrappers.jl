@@ -2,9 +2,22 @@
 # Checks
 ############################################################################################
 
+@testset "Core - construct_flatten" begin
+    df = FlattenDefault()
+    x = [1.]
+    constraint = Unconstrained()
+
+    construct_flatten([1.])
+    construct_flatten(Unconstrained(), [1.])
+    construct_flatten(df, x)
+    construct_flatten(df, constraint, x)
+    construct_flatten(df, UnflattenStrict(), x)
+    construct_flatten(df, UnflattenStrict(), constraint, x)
+end
+
 @testset "Core - Param" begin
+    Param(_RNG, .1, Normal())
     param = Param(0.1, Normal())
-    @test flatten(param) == flatten(param.val, param.constraint)
 end
 
 @testset "Core - Checkfinite" begin
@@ -58,18 +71,18 @@ end
     @test !_checkparams(Fixed())
 end
 
-@testset "Core - Checkparam" begin
-    @test ModelWrappers._checkparam(_RNG, .1, Normal())
-    @test !ModelWrappers._checkparam(_RNG, .1, MvNormal(LinearAlgebra.Diagonal(map(abs2, [1., 2.]))))
+@testset "Core - _check" begin
+    @test ModelWrappers._check(_RNG, Normal(), .1)
+    @test !ModelWrappers._check(_RNG, MvNormal(LinearAlgebra.Diagonal(map(abs2, [1., 2.]))), .1)
 end
 
 ############################################################################################
 # Random
 ############################################################################################
 @testset "Core - sample_constraint" begin
-    @test ModelWrappers.sample_constraint(_RNG, nothing) isa Nothing
-    @test ModelWrappers.sample_constraint(_RNG, 1.) isa Nothing
-    @test ModelWrappers.sample_constraint(_RNG, Normal()) isa Float64
+    @test ModelWrappers.sample_constraint(_RNG, Fixed(), nothing) isa Nothing
+    @test ModelWrappers.sample_constraint(_RNG, Unconstrained(), 1.0) == 1.0
+    @test ModelWrappers.sample_constraint(_RNG, Normal(), 3.) isa Float64
 end
 
 @testset "Core - log_prior" begin
@@ -120,15 +133,15 @@ end
 @testset "Core - paramnames" begin
     _names2 = ModelWrappers.paramnames(
         FlattenDefault(),
+        (a = Unconstrained(), c = Fixed(), b = [Normal(), Normal()]),
         (a = 1., c = 2., b = [3., 4.]),
-        (a = Unconstrained(), c = Fixed(), b = [Normal(), Normal()])
     )
     @test _names2 == ["a", "b1", "b2"]
     _names3 = ModelWrappers.paramnames(
         (:a,:c,:b),
         FlattenDefault(),
+        (a = Unconstrained(), c = Fixed(), b = [Normal(), Normal()]),
         (a = 1., c = 2., b = [3., 4.]),
-        (a = Unconstrained(), c = Fixed(), b = [Normal(), Normal()])
     )
     @test all(_names2 .== _names3)
 end

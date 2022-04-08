@@ -1,9 +1,7 @@
 ############################################################################################
-# Include files
-include("flatten/flatten.jl")
-include("utility.jl")
-include("checks.jl")
-include("random.jl")
+include("abstractarray.jl")
+include("tuple.jl")
+include("namedtuple.jl")
 
 ############################################################################################
 # Export

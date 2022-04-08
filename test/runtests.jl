@@ -17,7 +17,7 @@ using ModelWrappers:
     FlattenContinuous,
     FlattenAll,
     UnflattenStrict,
-    UnflattenAD,
+    UnflattenFlexible,
     _get_constraint,
     _checkparams,
     _checkfinite,
@@ -25,16 +25,26 @@ using ModelWrappers:
     _allparam,
     _anyparam,
     _checksampleable,
-    _to_bijector,
-    _to_inv_bijector,
+    construct_flatten,
+    construct_transform,
     flatten,
+    flattenAD,
+    unflatten,
+    unflattenAD,
     constrain,
     _get_val,
     _get_constraint,
     log_density,
     _log_density,
     log_density_and_gradient,
-    _log_density_and_gradient
+    _log_density_and_gradient,
+    tag,
+    _check,
+    flatten_Symmetric,
+    Symmetric_from_flatten,
+    flatten_Simplex,
+    Simplex_from_flatten!,
+    Simplex_from_flatten
 
 ############################################################################################
 # Include Files
@@ -43,13 +53,15 @@ include("TestHelper.jl")
 ############################################################################################
 # Run Tests
 @testset "All tests" begin
-    include("test-core.jl")
 
-    include("test-bijector.jl")
+    include("test-flatten/flatten.jl")
+
+    include("test-core.jl")
     include("test-flatten.jl")
 
     include("test-models.jl")
     include("test-tagged.jl")
     include("test-objective.jl")
     include("test-differentiation.jl")
+
 end
