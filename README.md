@@ -21,7 +21,7 @@ ModelWrappers.jl is a utility package that makes it easier to work with Model pa
 
 ## Flattening/Unflattening Model Parameter
 
-ModelWrappers.jl allows you to `flatten` a (nested) NamedTuple to a vector, and also returns an `unflatten` function to convert a vector back to a NamedTuple. By default, discrete parameter are not flattened, the default flatten type is `Float64`. One can construct flatten/unflatten via a 'Reconstructor'.
+ModelWrappers.jl allows you to `flatten` a (nested) NamedTuple to a vector, and also returns an `unflatten` function to convert a vector back to a NamedTuple. By default, discrete parameter are not flattened and the default flatten type is `Float64`. One can construct flatten/unflatten via a `ReConstructor`.
 ```julia
 using ModelWrappers
 myparameter = (a = Float32(1.), b = 2, c = [3., 4.], d = [5, 6])
@@ -38,7 +38,7 @@ vals_vec = flatten(reconstruct, myparameter) #Vector{Float16} with 6 elements (1
 vals = unflatten(reconstruct, vals_vec) #(a = 1.0f0, b = 2, c = [3.0, 4.0], d = [5, 6])
 ```
 
-Flatten/Unflatten can also be used for Automatic Differentiation. The functions 'flattenAD' and 'unflattenAD' return output based on the input type. See the differences to the first two cases in this example:
+Flatten/Unflatten can also be used for Automatic Differentiation. The functions `flattenAD` and `unflattenAD` return output based on the input type. Check the differences to the first two cases in this example:
 ```julia
 myparameter = (a = Float32(1.), b = 2, c = [3., 4.], d = [5, 6])
 flattendefault = FlattenDefault(; output = Float32, flattentype = FlattenAll())
