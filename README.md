@@ -21,38 +21,51 @@ ModelWrappers.jl is a utility package that makes it easier to work with Model pa
 
 ## Flattening/Unflattening Model Parameter
 
-ModelWrappers.jl allows you to `flatten` a (nested) NamedTuple to a vector, and also returns an `unflatten` function to convert a vector back to a NamedTuple. By default, discrete parameter are not flattened, the default flatten type is `Float64`, and unflatten will convert vector elements back to its original type.
+ModelWrappers.jl allows you to `flatten` a (nested) NamedTuple to a vector, and also returns an `unflatten` function to convert a vector back to a NamedTuple. By default, discrete parameter are not flattened, the default flatten type is `Float64`. One can construct flatten/unflatten via a 'Reconstructor'.
 ```julia
 using ModelWrappers
 myparameter = (a = Float32(1.), b = 2, c = [3., 4.], d = [5, 6])
-vals_vec, unflat = flatten(myparameter)
-vals_vec #Vector{Float64} with 3 elements (1., 3., 4.)
-unflat(vals_vec) #(a = 1.0f0, b = 2, c = [3.0, 4.0], d = [5, 6])
+reconstruct = ReConstructor(myparameter)
+vals_vec = flatten(reconstruct, myparameter) #Vector{Float64} with 3 elements (1., 3., 4.)
+vals = unflatten(reconstruct, vals_vec) #(a = 1.0f0, b = 2, c = [3.0, 4.0], d = [5, 6])
 ```
 
-You can adjust these settings by using the `FlattenDefault` struct. For instance, the following settings will map `myparameter` to a `Float16` vector, also flatten the Integer values and unflatten will return the types based on the input vector. The latter is useful for Automatic Differentiation.
+You can adjust these settings by using the `FlattenDefault` struct. For instance, the following settings will map `myparameter` to a `Float16` vector and also flatten the Integer values.
 ```julia
-flattendefault = FlattenDefault(; output = Float16, flattentype = FlattenAll(), unflattentype = UnflattenAD())
-vals_vec, unflat = flatten(flattendefault, myparameter)
-vals_vec #Vector{Float16} with 6 elements (1., 2., 3., 4., 5., 6.)
-unflat(vals_vec) #(a = Float16(1.0), b = Float16(2.0), c = Float16[3.0, 4.0], d = Float16[5.0, 6.0])
+flattendefault = FlattenDefault(; output = Float16, flattentype = FlattenAll())
+reconstruct = ReConstructor(flattendefault, myparameter)
+vals_vec = flatten(reconstruct, myparameter) #Vector{Float16} with 6 elements (1., 2., 3., 4., 5., 6.)
+vals = unflatten(reconstruct, vals_vec) #(a = 1.0f0, b = 2, c = [3.0, 4.0], d = [5, 6])
 ```
 
-Note that this library is optimized for the case where `unflatten` is called more often than `flatten`, i.e., buffers are allocated when `flatten` is used, so `unflatten` can be used as efficiently as possible. There are other libraries that flip this idea, such as the excellent library [ParameterHandling.jl](https://github.com/invenia/ParameterHandling.jl). Unflatten can usually be performed free of most allocations, even if arrays are involved:
+Flatten/Unflatten can also be used for Automatic Differentiation. The functions 'flattenAD' and 'unflattenAD' return output based on the input type. See the differences to the first two cases in this example:
+```julia
+myparameter = (a = Float32(1.), b = 2, c = [3., 4.], d = [5, 6])
+flattendefault = FlattenDefault(; output = Float32, flattentype = FlattenAll())
+reconstruct = ReConstructor(flattendefault, myparameter)
+vals_vec = flattenAD(reconstruct, myparameter) #Vector{Float64} with 6 elements (1., 3., 4.)
+vals = unflattenAD(reconstruct, vals_vec) #(a = 1.0, b = 2.0, c = [3.0, 4.0], d = [5.0, 6.0])
+```
+
+A `ReConstructor` will assign buffers for `flatten` and `unflatten`, so most operations can be performed without allocations. Unflatten can usually be performed free of most allocations, even if arrays are involved:
 ```julia
 using BenchmarkTools
 myparameter2 = (a = Float32(1.), b = 2, c = [3., 4.], d = [5, 6], e = randn(1000), f = rand(1:2, 1000), g = randn(1000, 2))
-vals_vec, unflat = flatten(myparameter2)
+reconstruct = ReConstructor(myparameter2)
+vals_vec = flatten(reconstruct, myparameter2)
 vals_vec #Vector{Float64} with 3003 element
-@btime $unflat($vals_vec) #434.848 ns (0 allocations: 0 bytes)
+@btime unflatten($reconstruct, $vals_vec)   # 419.095 ns (0 allocations: 0 bytes)
+@btime flatten($reconstruct, $myparameter2) # 3.475 μs (8 allocations: 39.83 KiB)
 ```
 
 Note that it is possible to nest NamedTuples, and use arbitrary Array-of-Arrays structures for your parameter, but this will often come with a performance penalty:
 ```julia
 myparameter3 = (a = myparameter, b = (c = (d = myparameter2, ), ), e = [rand(10), rand(15), rand(20)])
-vals_vec, unflat = flatten(myparameter3)
+reconstruct = ReConstructor(myparameter3)
+vals_vec = flatten(reconstruct, myparameter3)
 vals_vec #Vector{Float64} with 3051 element
-@btime $unflat($vals_vec) #1.300 μs (32 allocations: 2.98 KiB)
+@btime unflatten($reconstruct, $vals_vec)   # 1.220 μs (32 allocations: 3.19 KiB)
+@btime flatten($reconstruct, $myparameter3) # 7.275 μs (19 allocations: 88.17 KiB)
 ```
 
 ## Constraining/Unconstraining Model Parameter
@@ -143,9 +156,9 @@ end
 myobjective(θ_proposed)
 
 #Functor call wrt NamedTuple parameter
-@btime $myobjective($mymodel.val) #9.200 μs (0 allocations: 0 bytes)
+@btime $myobjective($mymodel.val) #6.420 μs (0 allocations: 0 bytes)
 #Functor call wrt proposed Parameter Vector
-@btime $myobjective($θ_proposed) #9.600 μs (0 allocations: 0 bytes)
+@btime $myobjective($θ_proposed) #6.480 μs (0 allocations: 0 bytes)
 ```
 
 `Objective` can also be called from various AD frameworks:
