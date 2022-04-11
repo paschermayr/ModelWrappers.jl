@@ -7,8 +7,8 @@
         for flattentype in flattentypes
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
             val = Float16(1.0)
-            Reconstructor(val)
-            reconstruct = Reconstructor(flatdefault, val)
+            ReConstructor(val)
+            reconstruct = ReConstructor(flatdefault, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -28,8 +28,8 @@
 ################################################################################
 # Constraint ~ Make Distribution as standard constraints are separately tested
             constraint_float = Distributions.Gamma(2,2)
-            Reconstructor(constraint_float, val)
-            reconstruct = Reconstructor(flatdefault, constraint_float, val)
+            ReConstructor(constraint_float, val)
+            reconstruct = ReConstructor(flatdefault, constraint_float, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -76,7 +76,7 @@ end
 @testset "Types - Float - Automatic Differentiation" begin
     val = Float32(1.0)
     constraint = Distributions.Gamma(2,2)
-    reconstruct = Reconstructor(constraint, val)
+    reconstruct = ReConstructor(constraint, val)
     val_flat = flatten(reconstruct, val)
 
     check_AD = check_AD_closure(constraint, val)
@@ -98,8 +98,8 @@ end
         for flattentype in flattentypes
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
             val = Float16.([1., 2.])
-            Reconstructor(val)
-            reconstruct = Reconstructor(flatdefault, val)
+            ReConstructor(val)
+            reconstruct = ReConstructor(flatdefault, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -119,8 +119,8 @@ end
 ################################################################################
 # Constraint ~ Make Distribution as standard constraints are separately tested
             constraint = Distributions.MvNormal([1.,1.])
-            Reconstructor(constraint, val)
-            reconstruct = Reconstructor(flatdefault, constraint, val)
+            ReConstructor(constraint, val)
+            reconstruct = ReConstructor(flatdefault, constraint, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -178,7 +178,7 @@ end
 @testset "Types - Vector Float - Automatic Differentiation" begin
     val = [1., 2.]
     constraint = Distributions.MvNormal([1., 1.])
-    reconstruct = Reconstructor(constraint, val)
+    reconstruct = ReConstructor(constraint, val)
     val_flat = flatten(reconstruct, val)
 
     check_AD = check_AD_closure(constraint, val)
@@ -200,8 +200,8 @@ end
         for flattentype in flattentypes
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
             val = Float16.([1. 0.3 ; .3 1.0])
-            Reconstructor(val)
-            reconstruct = Reconstructor(flatdefault, val)
+            ReConstructor(val)
+            reconstruct = ReConstructor(flatdefault, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -233,8 +233,8 @@ end
 ################################################################################
 # Constraint ~ Make Distribution as standard constraints are separately tested
             constraint = Unconstrained()
-            Reconstructor(constraint, val)
-            reconstruct = Reconstructor(flatdefault, constraint, val)
+            ReConstructor(constraint, val)
+            reconstruct = ReConstructor(flatdefault, constraint, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -280,7 +280,7 @@ end
 @testset "Types - Array Float - Automatic Differentiation" begin
     val = [1. 0.3 ; .3 1.0]
     constraint = Distributions.Distributions.InverseWishart(10., [1. 0. ; 0. 1.])
-    reconstruct = Reconstructor(constraint, val)
+    reconstruct = ReConstructor(constraint, val)
     val_flat = flatten(reconstruct, val)
 
     check_AD = check_AD_closure(constraint, val)
@@ -302,8 +302,8 @@ end
         for flattentype in flattentypes
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
             val = Int16(1.0)
-            Reconstructor(val)
-            reconstruct = Reconstructor(flatdefault, val)
+            ReConstructor(val)
+            reconstruct = ReConstructor(flatdefault, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -332,8 +332,8 @@ end
         for flattentype in flattentypes
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
             val = Int16.([1 2 ; 3 4])
-            Reconstructor(val)
-            reconstruct = Reconstructor(flatdefault, val)
+            ReConstructor(val)
+            reconstruct = ReConstructor(flatdefault, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector

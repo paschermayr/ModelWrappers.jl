@@ -116,37 +116,37 @@ Contains information for flatten/unflatten construct.
 # Fields
 $(TYPEDFIELDS)
 """
-struct Reconstructor{F<:FlattenDefault, S<:FlattenConstructor, T<:UnflattenConstructor}
+struct ReConstructor{F<:FlattenDefault, S<:FlattenConstructor, T<:UnflattenConstructor}
     default::F
     flatten::S
     unflatten::T
-    function Reconstructor(default::F, flatten::S, unflatten::T) where {F<:FlattenDefault, S<:FlattenConstructor, T<:UnflattenConstructor}
+    function ReConstructor(default::F, flatten::S, unflatten::T) where {F<:FlattenDefault, S<:FlattenConstructor, T<:UnflattenConstructor}
         return new{F,S,T}(default, flatten, unflatten)
     end
 end
-function Reconstructor(flattendefault::FlattenDefault, x)
+function ReConstructor(flattendefault::FlattenDefault, x)
 # Assign flatten constructors
     flatten, unflatten = construct_flatten(flattendefault, UnflattenStrict(), x)
     flattenAD, unflattenAD = construct_flatten(flattendefault, UnflattenFlexible(), x)
     flatten_constructor = FlattenConstructor(flatten, flattenAD)
     unflatten_constructor = UnflattenConstructor(unflatten, unflattenAD)
 # Return structs
-    return Reconstructor(flattendefault, flatten_constructor, unflatten_constructor)
+    return ReConstructor(flattendefault, flatten_constructor, unflatten_constructor)
 end
-function Reconstructor(flattendefault::FlattenDefault, constraint, x)
+function ReConstructor(flattendefault::FlattenDefault, constraint, x)
 # Assign flatten constructors
     flatten, unflatten = construct_flatten(flattendefault, UnflattenStrict(), constraint, x)
     flattenAD, unflattenAD = construct_flatten(flattendefault, UnflattenFlexible(), constraint, x)
     flatten_constructor = FlattenConstructor(flatten, flattenAD)
     unflatten_constructor = UnflattenConstructor(unflatten, unflattenAD)
 # Return structs
-    return Reconstructor(flattendefault, flatten_constructor, unflatten_constructor)
+    return ReConstructor(flattendefault, flatten_constructor, unflatten_constructor)
 end
-function Reconstructor(x)
-    return Reconstructor(FlattenDefault(), x)
+function ReConstructor(x)
+    return ReConstructor(FlattenDefault(), x)
 end
-function Reconstructor(constraint, x)
-    return Reconstructor(FlattenDefault(), constraint, x)
+function ReConstructor(constraint, x)
+    return ReConstructor(FlattenDefault(), constraint, x)
 end
 
 ############################################################################################
@@ -159,7 +159,7 @@ Convert 'x' into a Vector.
 ```
 """
 function flatten end
-function flatten(constructor::Reconstructor, x)
+function flatten(constructor::ReConstructor, x)
     return constructor.flatten.strict(x)
 end
 
@@ -172,7 +172,7 @@ Convert 'x' into a Vector that is AD compatible.
 ```
 """
 function flattenAD end
-function flattenAD(constructor::Reconstructor, x)
+function flattenAD(constructor::ReConstructor, x)
     return constructor.flatten.flexible(x)
 end
 
@@ -185,7 +185,7 @@ Unflatten 'x' into original shape.
 ```
 """
 function unflatten end
-function unflatten(constructor::Reconstructor, x)
+function unflatten(constructor::ReConstructor, x)
     return constructor.unflatten.strict(x)
 end
 
@@ -198,7 +198,7 @@ Unflatten 'x' into original shape but keep type information of 'x' for AD compat
 ```
 """
 function unflattenAD end
-function unflattenAD(constructor::Reconstructor, x)
+function unflattenAD(constructor::ReConstructor, x)
     return constructor.unflatten.flexible(x)
 end
 
@@ -212,20 +212,20 @@ Contains information to constrain and unconstrain parameter.
 ```julia
 ```
 """
-struct Transformconstructor{S, T}
+struct TransformConstructor{S, T}
     constrain::S
     unconstrain::T
-    function Transformconstructor(constraint, x)
+    function TransformConstructor(constraint, x)
         #!NOTE: Transform is used to unconstrain, and inverse-transform to constrain parameter back.
         transform, inverse_transform = construct_transform(constraint, x)
         return new{typeof(inverse_transform), typeof(transform)}(inverse_transform, transform)
     end
 end
 
-function constrain(transform::T, val) where {T<:Transformconstructor}
+function constrain(transform::T, val) where {T<:TransformConstructor}
     return constrain(transform.constrain, val)
 end
-function unconstrain(transform::T, val) where {T<:Transformconstructor}
+function unconstrain(transform::T, val) where {T<:TransformConstructor}
     return unconstrain(transform.unconstrain, val)
 end
 
@@ -240,9 +240,9 @@ export FlattenTypes,
     FlattenDefault,
     FlattenConstructor,
     UnflattenConstructor,
-    Reconstructor,
+    ReConstructor,
     flatten,
     flattenAD,
     unflatten,
     unflattenAD,
-    Transformconstructor
+    TransformConstructor

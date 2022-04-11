@@ -58,7 +58,7 @@
         ## If applicable, check if gradients for supported AD frameworks can be computed
         if length(θ_flat) > 0
             function check_AD_closure(constraint, val)
-                reconstruct = Reconstructor(constraint, val)
+                reconstruct = ReConstructor(constraint, val)
                 bij, bij⁻¹ = construct_transform(constraint, val)
                 function check_AD(θₜ::AbstractVector{T}) where {T<:Real}
                     θ = unflattenAD(reconstruct, θₜ)
@@ -136,7 +136,7 @@ end
         ## If applicable, check if gradients for supported AD frameworks can be computed
         if length(θ_flat) > 0
             function check_AD_closure(constraint, val)
-                reconstruct = Reconstructor(constraint, val)
+                reconstruct = ReConstructor(constraint, val)
                 bij, bij⁻¹ = construct_transform(constraint, val)
                 function check_AD(θₜ::AbstractVector{T}) where {T<:Real}
                     θ = unflattenAD(reconstruct, θₜ)

@@ -6,7 +6,7 @@ Contains information about parameter distributions, transformations and constrai
 # Fields
 $(TYPEDFIELDS)
 """
-struct ParameterInfo{C,R<:Reconstructor,T<:Transformconstructor}
+struct ParameterInfo{C,R<:ReConstructor,T<:TransformConstructor}
     "Constraint distribution/boundaries for all model parameter."
     constraint::C
     "Contains information for flatten/unflatten parameter"
@@ -17,9 +17,9 @@ struct ParameterInfo{C,R<:Reconstructor,T<:Transformconstructor}
         constraint::C, val::B, flattendefault::D
     ) where {C<:NamedTuple,B<:NamedTuple,D<:FlattenDefault}
         ## Create flatten constructor
-        constructor = Reconstructor(flattendefault, constraint, val)
+        constructor = ReConstructor(flattendefault, constraint, val)
         ## Assign transformer constraint NamedTuple
-        transformer = Transformconstructor(constraint, val)
+        transformer = TransformConstructor(constraint, val)
         ## Return ParameterInfo
         return new{C,typeof(constructor),typeof(transformer)}(
             constraint, constructor, transformer
