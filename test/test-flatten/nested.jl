@@ -7,8 +7,8 @@
         for flattentype in flattentypes
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
             val = [1., [2, 3], [4. 5. ; 6. 7.], 8., [9., 10.]]
-            ReConstructor(val)
-            reconstruct = ReConstructor(flatdefault, val)
+            Reconstructor(val)
+            reconstruct = Reconstructor(flatdefault, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -29,8 +29,8 @@
 # Constraint ~ Make Distribution as standard constraints are separately tested
             val = [1., [2, 3], [4. 5. ; 6. 7.], 8., [9., 10.]]
             constraint = [Normal(), MvNormal([1., 1.]), Fixed(), Gamma(), Unconstrained()]
-            ReConstructor(constraint, val)
-            reconstruct = ReConstructor(flatdefault, constraint, val)
+            Reconstructor(constraint, val)
+            reconstruct = Reconstructor(flatdefault, constraint, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -53,7 +53,7 @@
             x_transformed = unconstrain(_transform, val)
             x_inversetransformed = constrain(_inversetransform, x_transformed)
 
-            transformer = TransformConstructor(constraint, val)
+            transformer = Transformconstructor(constraint, val)
             val_uncon = unconstrain(transformer, val)
             val_con = constrain(transformer, val_uncon)
 
@@ -77,7 +77,7 @@ end
 @testset "Nested - AbstractArray - Automatic Differentiation" begin
     val = [1., [2., 3.], [4. 5. ; 6. 7.], 8., [9., 10.]]
     constraint = [Normal(), MvNormal([1., 1.]), Fixed(), Gamma(), Unconstrained()]
-    reconstruct = ReConstructor(constraint, val)
+    reconstruct = Reconstructor(constraint, val)
     val_flat = flatten(reconstruct, val)
 
     check_AD = check_AD_closure(constraint, val)
@@ -99,8 +99,8 @@ end
         for flattentype in flattentypes
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
             val = (1., [2, 3], [4. 5. ; 6. 7.], 8, [9., 10.])
-            ReConstructor(val)
-            reconstruct = ReConstructor(flatdefault, val)
+            Reconstructor(val)
+            reconstruct = Reconstructor(flatdefault, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -121,8 +121,8 @@ end
 # Constraint ~ Make Distribution as standard constraints are separately tested
             val = (1., [2, 3], [4. 5. ; 6. 7.], 8, [9., 10.])
             constraint = (Normal(), MvNormal([1., 1.]), Fixed(), Fixed(), Unconstrained())
-            ReConstructor(constraint, val)
-            reconstruct = ReConstructor(flatdefault, constraint, val)
+            Reconstructor(constraint, val)
+            reconstruct = Reconstructor(flatdefault, constraint, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -145,7 +145,7 @@ end
             x_transformed = unconstrain(_transform, val)
             x_inversetransformed = constrain(_inversetransform, x_transformed)
 
-            transformer = TransformConstructor(constraint, val)
+            transformer = Transformconstructor(constraint, val)
             val_uncon = unconstrain(transformer, val)
             val_con = constrain(transformer, val_uncon)
 
@@ -169,7 +169,7 @@ end
 @testset "Nested - Tuple - Automatic Differentiation" begin
     val = (1., [2., 3.], [4. 5. ; 6. 7.], 8., [9., 10.])
     constraint = (Normal(), MvNormal([1., 1.]), Fixed(), Gamma(), Unconstrained())
-    reconstruct = ReConstructor(constraint, val)
+    reconstruct = Reconstructor(constraint, val)
     val_flat = flatten(reconstruct, val)
 
     check_AD = check_AD_closure(constraint, val)
@@ -191,8 +191,8 @@ end
         for flattentype in flattentypes
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
             val = (a = Float16(1.0), b = [2, 3], c = [4. 5. ; 6. 7.], d = 8, e = [9., 10.], f = (g = (h = 3.)))
-            ReConstructor(val)
-            reconstruct = ReConstructor(flatdefault, val)
+            Reconstructor(val)
+            reconstruct = Reconstructor(flatdefault, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -213,8 +213,8 @@ end
 # Constraint ~ Make Distribution as standard constraints are separately tested
             val = (a = Float16(1.0), b = [2, 3], c = [4. 5. ; 6. 7.], d = 8, e = [9., 10.], f = (g = (h = 3.)))
             constraint = (a = Normal(), b = MvNormal([1., 1.]), c = Fixed(), d = Fixed(), e = Unconstrained(), f = (g = (h = Gamma())))
-            ReConstructor(constraint, val)
-            reconstruct = ReConstructor(flatdefault, constraint, val)
+            Reconstructor(constraint, val)
+            reconstruct = Reconstructor(flatdefault, constraint, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -237,7 +237,7 @@ end
             x_transformed = unconstrain(_transform, val)
             x_inversetransformed = constrain(_inversetransform, x_transformed)
 
-            transformer = TransformConstructor(constraint, val)
+            transformer = Transformconstructor(constraint, val)
             val_uncon = unconstrain(transformer, val)
             val_con = constrain(transformer, val_uncon)
 
@@ -261,7 +261,7 @@ end
 @testset "Nested - NamedTuple - Automatic Differentiation" begin
     val = (a = Float32(1.0), b = [2., 3.], c = [4. 5. ; 6. 7.], d = 8., e = [9., 10.], f = (g = (h = 3.)))
     constraint = (a = Normal(), b = MvNormal([1., 1.]), c = Fixed(), d = Gamma(), e = Unconstrained(), f = (g = (h = Gamma())))
-    reconstruct = ReConstructor(constraint, val)
+    reconstruct = Reconstructor(constraint, val)
     val_flat = flatten(reconstruct, val)
 
     check_AD = check_AD_closure(constraint, val)

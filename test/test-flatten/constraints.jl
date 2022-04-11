@@ -8,8 +8,8 @@
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
             val = 2.
             constraint = Bijectors.bijector(Gamma(2,2))
-            ReConstructor(constraint, val)
-            reconstruct = ReConstructor(flatdefault, constraint, val)
+            Reconstructor(constraint, val)
+            reconstruct = Reconstructor(flatdefault, constraint, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -32,7 +32,7 @@
             x_transformed = _transform(val)
             x_inversetransformed = _inversetransform(x_transformed)
 
-            transformer = TransformConstructor(constraint, val)
+            transformer = Transformconstructor(constraint, val)
             val_uncon = unconstrain(transformer, val)
             val_con = constrain(transformer, val_uncon)
 
@@ -60,8 +60,8 @@ end
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
             val = 2.
             constraint = Gamma(2,2)
-            ReConstructor(constraint, val)
-            reconstruct = ReConstructor(flatdefault, constraint, val)
+            Reconstructor(constraint, val)
+            reconstruct = Reconstructor(flatdefault, constraint, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -84,7 +84,7 @@ end
             x_transformed = _transform(val)
             x_inversetransformed = _inversetransform(x_transformed)
 
-            transformer = TransformConstructor(constraint, val)
+            transformer = Transformconstructor(constraint, val)
             val_uncon = unconstrain(transformer, val)
             val_con = constrain(transformer, val_uncon)
 
@@ -112,8 +112,8 @@ end
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
             val = 2.
             constraint = Constrained(1.,3.)
-            ReConstructor(constraint, val)
-            reconstruct = ReConstructor(flatdefault, constraint, val)
+            Reconstructor(constraint, val)
+            reconstruct = Reconstructor(flatdefault, constraint, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -136,7 +136,7 @@ end
             x_transformed = _transform(val)
             x_inversetransformed = _inversetransform(x_transformed)
 
-            transformer = TransformConstructor(constraint, val)
+            transformer = Transformconstructor(constraint, val)
             val_uncon = unconstrain(transformer, val)
             val_con = constrain(transformer, val_uncon)
 
@@ -164,8 +164,8 @@ end
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
             val = 2.
             constraint = Unconstrained()
-            ReConstructor(constraint, val)
-            reconstruct = ReConstructor(flatdefault, constraint, val)
+            Reconstructor(constraint, val)
+            reconstruct = Reconstructor(flatdefault, constraint, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -188,7 +188,7 @@ end
             x_transformed = _transform(val)
             x_inversetransformed = _inversetransform(x_transformed)
 
-            transformer = TransformConstructor(constraint, val)
+            transformer = Transformconstructor(constraint, val)
             val_uncon = unconstrain(transformer, val)
             val_con = constrain(transformer, val_uncon)
 
@@ -216,8 +216,8 @@ end
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
             val = zeros(2,3,4)
             constraint = Fixed()
-            ReConstructor(constraint, val)
-            reconstruct = ReConstructor(flatdefault, constraint, val)
+            Reconstructor(constraint, val)
+            reconstruct = Reconstructor(flatdefault, constraint, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -240,7 +240,7 @@ end
             x_transformed = _transform(val)
             x_inversetransformed = _inversetransform(x_transformed)
 
-            transformer = TransformConstructor(constraint, val)
+            transformer = Transformconstructor(constraint, val)
             val_uncon = unconstrain(transformer, val)
             val_con = constrain(transformer, val_uncon)
 
@@ -274,8 +274,8 @@ end
             val[3,2] = val[2, 3] = 0.14
             val
             constraint = CorrelationMatrix()
-            ReConstructor(constraint, val)
-            reconstruct = ReConstructor(flatdefault, constraint, val)
+            Reconstructor(constraint, val)
+            reconstruct = Reconstructor(flatdefault, constraint, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -312,7 +312,7 @@ end
             x_transformed = _transform(val)
             x_inversetransformed = _inversetransform(x_transformed)
 
-            transformer = TransformConstructor(constraint, val)
+            transformer = Transformconstructor(constraint, val)
             val_uncon = unconstrain(transformer, val)
             val_con = constrain(transformer, val_uncon)
 
@@ -349,8 +349,8 @@ end
             val[3,2] = val[2, 3] = 0.14
             val
             constraint = CovarianceMatrix()
-            ReConstructor(constraint, val)
-            reconstruct = ReConstructor(flatdefault, constraint, val)
+            Reconstructor(constraint, val)
+            reconstruct = Reconstructor(flatdefault, constraint, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -387,7 +387,7 @@ end
             x_transformed = _transform(val)
             x_inversetransformed = _inversetransform(x_transformed)
 
-            transformer = TransformConstructor(constraint, val)
+            transformer = Transformconstructor(constraint, val)
             val_uncon = unconstrain(transformer, val)
             val_con = constrain(transformer, val_uncon)
 
@@ -422,8 +422,8 @@ end
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
             val = [.1, .2, .7]
             constraint = Simplex(val)
-            ReConstructor(constraint, val)
-            reconstruct = ReConstructor(flatdefault, constraint, val)
+            Reconstructor(constraint, val)
+            reconstruct = Reconstructor(flatdefault, constraint, val)
 # Flatten
             x_flat = flatten(reconstruct, val)
             @test x_flat isa AbstractVector
@@ -460,7 +460,7 @@ end
             x_transformed = _transform(val)
             x_inversetransformed = _inversetransform(x_transformed)
 
-            transformer = TransformConstructor(constraint, val)
+            transformer = Transformconstructor(constraint, val)
             val_uncon = unconstrain(transformer, val)
             val_con = constrain(transformer, val_uncon)
 
