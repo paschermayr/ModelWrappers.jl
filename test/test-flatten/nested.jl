@@ -53,7 +53,7 @@
             x_transformed = unconstrain(_transform, val)
             x_inversetransformed = constrain(_inversetransform, x_transformed)
 
-            transformer = Transformconstructor(constraint, val)
+            transformer = TransformConstructor(constraint, val)
             val_uncon = unconstrain(transformer, val)
             val_con = constrain(transformer, val_uncon)
 
@@ -145,7 +145,7 @@ end
             x_transformed = unconstrain(_transform, val)
             x_inversetransformed = constrain(_inversetransform, x_transformed)
 
-            transformer = Transformconstructor(constraint, val)
+            transformer = TransformConstructor(constraint, val)
             val_uncon = unconstrain(transformer, val)
             val_con = constrain(transformer, val_uncon)
 
@@ -237,7 +237,7 @@ end
             x_transformed = unconstrain(_transform, val)
             x_inversetransformed = constrain(_inversetransform, x_transformed)
 
-            transformer = Transformconstructor(constraint, val)
+            transformer = TransformConstructor(constraint, val)
             val_uncon = unconstrain(transformer, val)
             val_con = constrain(transformer, val_uncon)
 
