@@ -41,9 +41,9 @@ vals = unflatten(reconstruct, vals_vec) #(a = 1.0f0, b = 2, c = [3.0, 4.0], d = 
 Flatten/Unflatten can also be used for Automatic Differentiation. The functions `flattenAD` and `unflattenAD` return output based on the input type. Check the differences to the first two cases in this example:
 ```julia
 myparameter = (a = Float32(1.), b = 2, c = [3., 4.], d = [5, 6])
-flattendefault = FlattenDefault(; output = Float32)
+flattendefault = FlattenDefault(; output = Float32, flattentype = FlattenAll())
 reconstruct = ReConstructor(flattendefault, myparameter)
-vals_vec = flattenAD(reconstruct, myparameter) #Vector{Float64} with 3 elements (1., 3., 4.)
+vals_vec = flattenAD(reconstruct, myparameter)  #Vector{Float64} with 6 elements (1.00 2.00 3.00 4.00 5.00 6.00)
 vals = unflattenAD(reconstruct, vals_vec) #(a = 1.0, b = 2.0, c = [3.0, 4.0], d = [5.0, 6.0])
 ```
 
