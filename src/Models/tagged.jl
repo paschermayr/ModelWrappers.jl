@@ -46,6 +46,11 @@ end
 
 ############################################################################################
 # Dispatch Tagged struct for .Core functions
+function generate_showvalues(model::ModelWrapper, tagged::Tagged)
+    return function showvalues()
+        return ((:Parameter, subset(model, tagged)), )
+    end
+end
 function fill(model::ModelWrapper, tagged::Tagged, θ::NamedTuple)
     return merge(model.val, subset(θ, tagged.parameter))
 end

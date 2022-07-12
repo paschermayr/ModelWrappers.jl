@@ -106,23 +106,6 @@ end
 =#
 
 ############################################################################################
-function checkfinite(result::T) where {T<:ℓObjectiveResult}
-    return isfinite(result.ℓθᵤ) && _checkfinite(result.θᵤ) ? true : false
-end
-function checkfinite(
-    result₀::T, result::T, min_Δ::Float64=min_Δ
-) where {T<:ℓObjectiveResult}
-    checkfinite(result) && ((result.ℓθᵤ - result₀.ℓθᵤ) > min_Δ) || return false
-    return true
-end
-function checkfinite(
-    ℓθ₀::R, ℓθ::R, result::T, min_Δ::Float64=min_Δ
-) where {R<:Real,T<:ℓObjectiveResult}
-    checkfinite(result) && ((ℓθ - ℓθ₀) > min_Δ) || return false
-    return true
-end
-
-############################################################################################
 # Export
 export
     ℓObjectiveResult,

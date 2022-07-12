@@ -65,5 +65,66 @@ function check_gradients(
 end
 
 ############################################################################################
+# Error handling
+function checkfinite(θₜ::AbstractVector{T}) where {T<:Real}
+    return _checkfinite(θₜ)
+end
+function checkfinite(result::T) where {T<:ℓObjectiveResult}
+    return isfinite(result.ℓθᵤ) && _checkfinite(result.θᵤ) ? true : false
+end
+function checkfinite(
+    result₀::T, result::T, min_Δ::Float64=min_Δ
+) where {T<:ℓObjectiveResult}
+    checkfinite(result) && ((result.ℓθᵤ - result₀.ℓθᵤ) > min_Δ) || return false
+    return true
+end
+function checkfinite(
+    ℓθ₀::R, ℓθ::R, result::T, min_Δ::Float64=min_Δ
+) where {R<:Real,T<:ℓObjectiveResult}
+    checkfinite(result) && ((ℓθ - ℓθ₀) > min_Δ) || return false
+    return true
+end
+
+############################################################################################
+"""
+$(TYPEDEF)
+Stores parameter in constrained space at which logdensity could not be evaluated.
+
+# Fields
+$(TYPEDFIELDS)
+"""
+struct ObjectiveError <: Exception
+    #!NOTE: Remove Parametric types so error message is shorter
+    msg::String
+    θ::NamedTuple
+    θᵤ::AbstractVector
+    function ObjectiveError(objective::Objective, θᵤ::AbstractVector{T}) where {T<:Real}
+        msg = "Internal error: leapfrog called from non-finite log density. Proposed parameter in constrained and unconstrained space:"
+        θ = unflatten_constrain(objective.model, objective.tagged, θᵤ)
+        new(msg, θ, θᵤ)
+    end
+end
+
+function checkfinite(objective::Objective, θᵤ::AbstractVector{T}) where {T<:Real}
+    ArgCheck.@argcheck checkfinite(θᵤ) ObjectiveError(objective, θᵤ)
+end
+function checkfinite(objective::Objective, result::T) where {T<:ℓObjectiveResult}
+    ArgCheck.@argcheck checkfinite(result) ObjectiveError(objective, result.θᵤ)
+end
+function checkfinite(
+    objective::Objective, result₀::T, result::T, min_Δ::Float64=min_Δ
+) where {T<:ℓObjectiveResult}
+    ArgCheck.@argcheck checkfinite(result₀, result, min_Δ) ObjectiveError(objective, result.θᵤ)
+end
+function checkfinite(
+    objective::Objective, ℓθ₀::R, ℓθ::R, result::T, min_Δ::Float64=min_Δ
+) where {R<:Real,T<:ℓObjectiveResult}
+    ArgCheck.@argcheck checkfinite(ℓθ₀, ℓθ, result, min_Δ) ObjectiveError(objective, result.θᵤ)
+end
+
+############################################################################################
 # Export
-export check_gradients
+export
+    check_gradients,
+    checkfinite,
+    ObjectiveError

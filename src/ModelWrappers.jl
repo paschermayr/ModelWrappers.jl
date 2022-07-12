@@ -17,7 +17,7 @@ using BaytesCore:
 
 using DocStringExtensions:
     DocStringExtensions, TYPEDEF, TYPEDFIELDS, FIELDS, SIGNATURES, FUNCTIONNAME
-using ArgCheck: ArgCheck, @argcheck
+using ArgCheck: ArgCheck, @argcheck, Exception
 using UnPack: UnPack, @unpack, @pack!
 using Random: Random, AbstractRNG, GLOBAL_RNG
 

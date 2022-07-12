@@ -18,6 +18,9 @@ objectiveExample = Objective(modelExample, (data1, data2, data3, _idx))
     _ld_inf_fault = log_density(objectiveExample, copy(theta_unconstrained))
     _ld_inf_fault.θᵤ[10] = Inf
 
+    @test ModelWrappers.checkfinite(theta_unconstrained)
+    @test !ModelWrappers.checkfinite(theta_unconstrained2)
+
     @test ModelWrappers.checkfinite(_ld_fin)
     @test !ModelWrappers.checkfinite(_ld_inf)
     @test !ModelWrappers.checkfinite(_ld_inf_fault)
@@ -28,7 +31,19 @@ objectiveExample = Objective(modelExample, (data1, data2, data3, _idx))
     @test ModelWrappers.checkfinite(-Inf, 10.0, _ld_fin) #Infinite to Finite
     @test !ModelWrappers.checkfinite(10.0, -Inf, _ld_fin) #Finite to Infinite
     @test !ModelWrappers.checkfinite(-Inf, 10.0, _ld_inf) #Finite to Infinite
+
+
+    #!ToDo: Check for correct error message in case logdensity cannot be evaluated
+    ModelWrappers.checkfinite(objectiveExample, theta_unconstrained)
+    ModelWrappers.checkfinite(objectiveExample, _ld_fin)
+    ModelWrappers.checkfinite(objectiveExample, _ld_inf, _ld_fin)
+    ModelWrappers.checkfinite(objectiveExample, -Inf, 10.0, _ld_fin)
+
+    err = ObjectiveError(objectiveExample, theta_unconstrained)
+    @test isa(err, ArgCheck.Exception)
+
 end
+
 
 @testset "AutoDiffContainer - Log Objective AutoDiff compatibility - Vectorized Model" begin
     ## Assign DiffTune

@@ -74,6 +74,22 @@ function simulate(model::ModelWrapper) end
 
 ############################################################################################
 # Dispatch Model struct for .Core functions
+
+"""
+$(SIGNATURES)
+Show current values of Model as NamedTuple
+
+# Examples
+```julia
+```
+
+"""
+function generate_showvalues(model::ModelWrapper)
+    return function showvalues()
+        return ((:Parameter, model.val), )
+    end
+end
+
 """
 $(SIGNATURES)
 Fill 'model' values with NamedTuple 'θ'.

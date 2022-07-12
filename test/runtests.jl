@@ -7,6 +7,7 @@ using Random: Random, AbstractRNG, seed!
 using LinearAlgebra
 using Distributions, Bijectors, DistributionsAD
 using ForwardDiff, ReverseDiff, Zygote
+using ArgCheck
 
 ############################################################################################
 # Import Baytes Packages
