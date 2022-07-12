@@ -18,6 +18,7 @@ _modelProb = ModelWrapper(ProbModel(), val_dist)
     @test log_prior(_modelProb) + log_abs_det_jac(_modelProb) ≈
           log_prior_with_transform(_modelProb)
     ## Utility functions
+    ModelWrappers.generate_showvalues(_modelProb)()
     unconstrain(_modelProb)
     flatten(_modelProb)
     unconstrain_flatten(_modelProb)

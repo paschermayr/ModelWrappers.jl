@@ -43,6 +43,7 @@ _params = [sample(_modelProb, _targets[iter]) for iter in eachindex(_syms)]
         log_prior_with_transform(_model_temp, _target)
 
         subset(_model_temp, _target)
+        ModelWrappers.generate_showvalues(_model_temp, _target)()
         ModelWrappers.length(_target)
         ModelWrappers.paramnames(_target)
         fill(_model_temp, _target, _model_temp.val)
