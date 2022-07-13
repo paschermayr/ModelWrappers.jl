@@ -20,6 +20,33 @@ function (objective::Objective{<:ModelWrapper{SossBenchmark}})(θ::NamedTuple)
     return lp + ll
 end
 
+@testset "Objective - No Initialization" begin
+    initmethod = NoInitialization()
+    _objective = deepcopy(obectiveSossBM)
+    _val = deepcopy(_objective.model.val)
+
+    initmethod(nothing, _objective)
+    @test _val == _objective.model.val
+end
+
+@testset "Objective - Prior Initialization" begin
+    initmethod = PriorInitialization(100)
+    _objective = deepcopy(obectiveSossBM)
+    _val = deepcopy(_objective.model.val)
+
+    initmethod(nothing, _objective)
+    @test _val != _objective.model.val
+end
+
+@testset "Objective - Prior Initialization, partially Tagged" begin
+    initmethod = PriorInitialization(100)
+    _objective = Objective(deepcopy(obectiveSossBM.model), obectiveSossBM.data, Tagged(obectiveSossBM.model, :σ))
+    _val = deepcopy(_objective.model.val)
+
+    initmethod(nothing, _objective)
+    @test _val != _objective.model.val
+    @test _val.μ == _objective.model.val.μ
+end
 
 ################################################################################
 #!NOTE: Remove Soss dependency from ModelWrappers and make separete BaytesSoss, so heavy deps. removed
