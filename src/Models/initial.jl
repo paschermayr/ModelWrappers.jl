@@ -47,7 +47,7 @@ function (initialization::PriorInitialization)(algorithm, objective::Objective)
         sample!(objective.model, objective.tagged)
         ℓθᵤ = objective(unconstrain_flatten(objective.model, objective.tagged))
     end
-    ArgCheck.@argcheck counter <= NInitial "Could find initial parameter with finite log target density. Adjust intial values, prior, or increase number of intial samples."
+    ArgCheck.@argcheck counter <= Ntrials "Could not find initial parameter with finite log target density. Adjust intial values, prior, or increase number of intial samples."
     return nothing
 end
 
