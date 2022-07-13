@@ -241,7 +241,8 @@ Inplace version of [`sample`](@ref).
 
 """
 function sample!(_rng::Random.AbstractRNG, model::ModelWrapper)
-    ArgCheck.@argcheck _checkprior(model.info.constraint) "For inplace sample version, all constraints need to be a Distribution."
+    #!NOTE: Check no longer needed, as Fixed Tags just return current value
+#    ArgCheck.@argcheck _checkprior(model.info.constraint) "For inplace sample version, all constraints need to be a Distribution."
     model.val = sample(_rng, model)
     return nothing
 end

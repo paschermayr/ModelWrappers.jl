@@ -3,6 +3,12 @@
 
 ############################################################################################
 @testset "Nested - AbstractArray" begin
+    val = [1., [2, 3], [4. 5. ; 6. 7.], 8., [9., 10.]]
+#Default ReConstructor and flatten
+    val_flat, _reconstruct = flatten(val)
+    @test val_flat == flatten(_reconstruct, val)
+    @test val == unflatten(_reconstruct, val_flat)
+    unflattenAD(_reconstruct, val_flat)
     for output in outputtypes
         for flattentype in flattentypes
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
@@ -95,6 +101,12 @@ end
 
 ############################################################################################
 @testset "Nested - Tuple" begin
+    val = (1., [2, 3], [4. 5. ; 6. 7.], 8, [9., 10.])
+#Default ReConstructor and flatten
+    val_flat, _reconstruct = flatten(val)
+    @test val_flat == flatten(_reconstruct, val)
+    @test val == unflatten(_reconstruct, val_flat)
+    unflattenAD(_reconstruct, val_flat)
     for output in outputtypes
         for flattentype in flattentypes
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
@@ -187,6 +199,12 @@ end
 
 ############################################################################################
 @testset "Nested - NamedTuple" begin
+    val = (a = Float16(1.0), b = [2, 3], c = [4. 5. ; 6. 7.], d = 8, e = [9., 10.], f = (g = (h = 3.)))
+#Default ReConstructor and flatten
+    val_flat, _reconstruct = flatten(val)
+    @test val_flat == flatten(_reconstruct, val)
+    @test val == unflatten(_reconstruct, val_flat)
+    unflattenAD(_reconstruct, val_flat)
     for output in outputtypes
         for flattentype in flattentypes
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)

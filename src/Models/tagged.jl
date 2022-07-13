@@ -104,7 +104,8 @@ end
 sample(model::ModelWrapper, tagged::Tagged) = sample(Random.GLOBAL_RNG, model, tagged)
 
 function sample!(_rng::Random.AbstractRNG, model::ModelWrapper, tagged::Tagged)
-    ArgCheck.@argcheck _checkprior(subset(tagged.info.constraint, tagged.parameter)) "For inplace sample version, all constraints need to be a Distribution."
+    #!NOTE: Check no longer needed, as Fixed Tags just return current value
+#    ArgCheck.@argcheck _checkprior(subset(tagged.info.constraint, tagged.parameter)) "For inplace sample version, all constraints need to be a Distribution."
     model.val = sample(_rng, model, tagged)
     return nothing
 end

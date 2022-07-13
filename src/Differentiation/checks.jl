@@ -96,30 +96,31 @@ $(TYPEDFIELDS)
 struct ObjectiveError <: Exception
     #!NOTE: Remove Parametric types so error message is shorter
     msg::String
+    ℓθᵤ::Real
     θ::NamedTuple
     θᵤ::AbstractVector
-    function ObjectiveError(objective::Objective, θᵤ::AbstractVector{T}) where {T<:Real}
+    function ObjectiveError(objective::Objective, ℓθᵤ::S, θᵤ::AbstractVector{T}) where {S<:Real, T<:Real}
         msg = "Internal error: leapfrog called from non-finite log density. Proposed parameter in constrained and unconstrained space:"
         θ = unflatten_constrain(objective.model, objective.tagged, θᵤ)
-        new(msg, θ, θᵤ)
+        new(msg, ℓθᵤ, θ, θᵤ)
     end
 end
 
 function checkfinite(objective::Objective, θᵤ::AbstractVector{T}) where {T<:Real}
-    ArgCheck.@argcheck checkfinite(θᵤ) ObjectiveError(objective, θᵤ)
+    ArgCheck.@argcheck checkfinite(θᵤ) ObjectiveError(objective, NaN, θᵤ)
 end
 function checkfinite(objective::Objective, result::T) where {T<:ℓObjectiveResult}
-    ArgCheck.@argcheck checkfinite(result) ObjectiveError(objective, result.θᵤ)
+    ArgCheck.@argcheck checkfinite(result) ObjectiveError(objective, result.ℓθᵤ, result.θᵤ)
 end
 function checkfinite(
     objective::Objective, result₀::T, result::T, min_Δ::Float64=min_Δ
 ) where {T<:ℓObjectiveResult}
-    ArgCheck.@argcheck checkfinite(result₀, result, min_Δ) ObjectiveError(objective, result.θᵤ)
+    ArgCheck.@argcheck checkfinite(result₀, result, min_Δ) ObjectiveError(objective, result.ℓθᵤ, result.θᵤ)
 end
 function checkfinite(
     objective::Objective, ℓθ₀::R, ℓθ::R, result::T, min_Δ::Float64=min_Δ
 ) where {R<:Real,T<:ℓObjectiveResult}
-    ArgCheck.@argcheck checkfinite(ℓθ₀, ℓθ, result, min_Δ) ObjectiveError(objective, result.θᵤ)
+    ArgCheck.@argcheck checkfinite(ℓθ₀, ℓθ, result, min_Δ) ObjectiveError(objective, result.ℓθᵤ, result.θᵤ)
 end
 
 ############################################################################################

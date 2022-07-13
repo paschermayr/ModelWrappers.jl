@@ -3,10 +3,16 @@
 
 ############################################################################################
 @testset "Types - Float" begin
+    val = Float16(1.0)
+#Default ReConstructor and flatten
+    val_flat, _reconstruct = flatten(val)
+    @test val_flat == flatten(_reconstruct, val)
+    @test val == unflatten(_reconstruct, val_flat)
+    unflattenAD(_reconstruct, val_flat)
     for output in outputtypes
         for flattentype in flattentypes
-            flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
             val = Float16(1.0)
+            flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
             ReConstructor(val)
             reconstruct = ReConstructor(flatdefault, val)
 # Flatten
@@ -94,6 +100,12 @@ end
 
 ############################################################################################
 @testset "Types - Vector Float" begin
+    val = Float16.([1., 2.])
+#Default ReConstructor and flatten
+    val_flat, _reconstruct = flatten(val)
+    @test val_flat == flatten(_reconstruct, val)
+    @test val == unflatten(_reconstruct, val_flat)
+    unflattenAD(_reconstruct, val_flat)
     for output in outputtypes
         for flattentype in flattentypes
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
@@ -196,6 +208,12 @@ end
 
 ############################################################################################
 @testset "Types - Array Float" begin
+    val = Float16.([1. 0.3 ; .3 1.0])
+#Default ReConstructor and flatten
+    val_flat, _reconstruct = flatten(val)
+    @test val_flat == flatten(_reconstruct, val)
+    @test val == unflatten(_reconstruct, val_flat)
+    unflattenAD(_reconstruct, val_flat)
     for output in outputtypes
         for flattentype in flattentypes
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
@@ -298,6 +316,12 @@ end
 
 ############################################################################################
 @testset "Types - Integer" begin
+    val = Int16(1.0)
+#Default ReConstructor and flatten
+    val_flat, _reconstruct = flatten(val)
+    @test val_flat == flatten(_reconstruct, val)
+    @test val == unflatten(_reconstruct, val_flat)
+    unflattenAD(_reconstruct, val_flat)
     for output in outputtypes
         for flattentype in flattentypes
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
@@ -328,6 +352,12 @@ end
 
 ############################################################################################
 @testset "Types - Array Integer" begin
+    val = Int16.([1 2 ; 3 4])
+#Default ReConstructor and flatten
+    val_flat, _reconstruct = flatten(val)
+    @test val_flat == flatten(_reconstruct, val)
+    @test val == unflatten(_reconstruct, val_flat)
+    unflattenAD(_reconstruct, val_flat)
     for output in outputtypes
         for flattentype in flattentypes
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)

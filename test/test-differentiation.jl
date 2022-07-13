@@ -39,7 +39,7 @@ objectiveExample = Objective(modelExample, (data1, data2, data3, _idx))
     ModelWrappers.checkfinite(objectiveExample, _ld_inf, _ld_fin)
     ModelWrappers.checkfinite(objectiveExample, -Inf, 10.0, _ld_fin)
 
-    err = ObjectiveError(objectiveExample, theta_unconstrained)
+    err = ObjectiveError(objectiveExample, -Inf, theta_unconstrained)
     @test isa(err, ArgCheck.Exception)
 
 end

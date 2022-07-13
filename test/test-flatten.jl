@@ -21,6 +21,8 @@
                     θ_flat = _flatten(θ)
                     θ_unflat = _unflatten(θ_flat)
 
+
+
                     #!NOTE Do not test if FlattenContinuous and empty Integer Param struct is evaluated
                     if θ_flat isa Vector{T} where {T<:AbstractFloat}
                         if unflat isa UnflattenStrict
@@ -87,6 +89,7 @@ end
         param = _params[sym]
         θ = _get_val(param)
         constraint = _get_constraint(param)
+        ## Check all flatten possibilities
         for unflat in unflattenmethods
             for flat in flattentypes
                 for floattypes in outputtypes

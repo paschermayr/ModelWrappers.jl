@@ -162,6 +162,10 @@ function flatten end
 function flatten(constructor::ReConstructor, x)
     return constructor.flatten.strict(x)
 end
+function flatten(x)
+    constructor = ReConstructor(x)
+    return flatten(constructor, x), constructor
+end
 
 """
     $(FUNCTIONNAME)(x )
@@ -174,6 +178,10 @@ Convert 'x' into a Vector that is AD compatible.
 function flattenAD end
 function flattenAD(constructor::ReConstructor, x)
     return constructor.flatten.flexible(x)
+end
+function flattenAD(x)
+    constructor = ReConstructor(x)
+    return flattenAD(constructor, x), constructor
 end
 
 """
