@@ -38,7 +38,7 @@ end
 
 function (initialization::PriorInitialization)(algorithm, objective::Objective)
     # Set initial counter
-    @unpack Ntrials = init
+    @unpack Ntrials = initialization
     ℓθᵤ = -Inf
     counter = 0
     # Sample from prior until finite log target is obtained

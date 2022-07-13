@@ -45,8 +45,7 @@ using ModelWrappers:
     Symmetric_from_flatten,
     flatten_Simplex,
     Simplex_from_flatten!,
-    Simplex_from_flatten,
-    init
+    Simplex_from_flatten
 
 ############################################################################################
 # Include Files
