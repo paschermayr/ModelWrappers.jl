@@ -14,6 +14,7 @@ struct NoInitialization <: AbstractInitialization end
 
 "Sample (up to Ntrials) times from prior and check if log target distribution is finite at proposed parameter in unconstrained space."
 struct PriorInitialization <: AbstractInitialization
+    "Number of trials to sample until finite logdensity is achieved."
     Ntrials::Int64
     function PriorInitialization(Ntrials::Integer)
         return new(Ntrials)
@@ -22,6 +23,7 @@ end
 
 "Use custom optimization technique for initialization."
 struct OptimInitialization{T} <: AbstractInitialization
+    "Optimization Method to find initial parameter."
     method::T
     function OptimInitialization(method::T) where {T}
         return new{T}(method)
