@@ -29,14 +29,14 @@ struct OptimInitialization{T} <: AbstractInitialization
 end
 
 ############################################################################################
-function (initialization::NoInitialization)(algorithm, objective::Objective)
+function (initialization::NoInitialization)(kernel, objective::Objective)
     #Check if initial parameter satisfy prior constraints
     ℓθᵤ = objective(unconstrain_flatten(objective.model, objective.tagged))
     @argcheck isfinite(ℓθᵤ) "Log target function at initial value not finite. Change initial parameter or sample from prior via PriorParameter"
     return nothing
 end
 
-function (initialization::PriorInitialization)(algorithm, objective::Objective)
+function (initialization::PriorInitialization)(kernel, objective::Objective)
     # Set initial counter
     @unpack Ntrials = initialization
     ℓθᵤ = -Inf
