@@ -181,7 +181,7 @@ end
 
 ############################################################################################
 # Differentiation - Float32
-modelExample2 = ModelWrapper(ExampleModel(), _val_examplemodel, FlattenDefault(; output = Float32))
+modelExample2 = ModelWrapper(ExampleModel(), _val_examplemodel, (;), FlattenDefault(; output = Float32))
 objectiveExample2 = Objective(modelExample2, (data1, data2, data3, _idx))
 objectiveExample2(objectiveExample2.model.val)
 

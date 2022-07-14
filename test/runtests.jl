@@ -35,10 +35,10 @@ using ModelWrappers:
     constrain,
     _get_val,
     _get_constraint,
-    log_density,
-    _log_density,
-    log_density_and_gradient,
-    _log_density_and_gradient,
+#    log_density,
+#    _log_density,
+#    log_density_and_gradient,
+#    _log_density_and_gradient,
     tag,
     _check,
     flatten_Symmetric,
@@ -63,6 +63,6 @@ include("TestHelper.jl")
     include("test-models.jl")
     include("test-tagged.jl")
     include("test-objective.jl")
-    include("test-differentiation.jl")
+#    include("test-differentiation.jl")
 
 end

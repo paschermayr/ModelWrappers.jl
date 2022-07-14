@@ -27,9 +27,11 @@ using Distributions: Distributions, Distribution, logpdf
 using Bijectors:
     Bijectors, Bijector, logpdf_with_trans,
     TruncatedBijector, SimplexBijector, CorrBijector, PDBijector
+
+using ChainRulesCore
 #!NOTE: These libraries are only relevant for 'Differentiation' files - open to make separate library later on but for now easier to test changes with AD libraries included in a single library.
-using ChainRulesCore, DistributionsAD, DiffResults
-using ForwardDiff, ReverseDiff, Zygote
+#using ChainRulesCore, DistributionsAD, DiffResults
+#using ForwardDiff, ReverseDiff, Zygote
 
 ############################################################################################
 # A bunch of constants used throughout the package
@@ -42,7 +44,7 @@ const min_Δ = -1e+3
 #Import
 include("Core/Core.jl")
 include("Models/Models.jl")
-include("Differentiation/Differentiation.jl")
+#include("Differentiation/Differentiation.jl")
 
 ############################################################################################
 #export

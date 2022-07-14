@@ -23,24 +23,26 @@ Contains information about current Model value, name, and information, see also 
 $(TYPEDFIELDS)
 """
 mutable struct ModelWrapper{
-    M<:Union{P,ModelName} where {P},A<:NamedTuple,B<:ParameterInfo
+    M<:Union{P,ModelName} where {P},A<:NamedTuple, C<:NamedTuple, B<:ParameterInfo
 } <: BaytesCore.AbstractModelWrapper
     "Current Model values as NamedTuple - works with Nested Tuples."
     val::A
+    "Supplementary arguments for log target function that are fixed and dont need to be stored in a trace."
+    arg::C
     "Information about parameter distributions, transformations and constraints, see [`ParameterInfo`](@ref)."
     info::B
     "Model id, per default BaseModel. Useful for dispatching ModelWrapper struct."
     id::M
     function ModelWrapper(
-        val::A, info::B, id::M
-    ) where {M<:Union{P,ModelName} where {P},A<:NamedTuple,B<:ParameterInfo}
-        return new{M,A,B}(val, info, id)
+        val::A, arg::C, info::B, id::M
+    ) where {M<:Union{P,ModelName} where {P},A<:NamedTuple,C<:NamedTuple,B<:ParameterInfo}
+        return new{M,A,C,B}(val, arg, info, id)
     end
 end
 # Convenient Constructor
 function ModelWrapper(
-    id::M, parameter::A, flattendefault::F=FlattenDefault()
-) where {M<:Union{P,ModelName} where {P},A<:NamedTuple,F<:FlattenDefault}
+    id::M, parameter::A, arg::C=(;), flattendefault::F=FlattenDefault()
+) where {M<:Union{P,ModelName} where {P},A<:NamedTuple,C<:NamedTuple,F<:FlattenDefault}
     ## Check if all values in val are of type Param
     ArgCheck.@argcheck _checkparams(parameter) "All values in (nested) NamedTuple have to be of Type Param."
     ## Split between values and constraints
@@ -49,10 +51,10 @@ function ModelWrapper(
     ## Create ParameterInfo struct
     paraminfo = ParameterInfo(constraint, val, flattendefault)
     ## Return ModelWrapper
-    return ModelWrapper(val, paraminfo, id)
+    return ModelWrapper(val, arg, paraminfo, id)
 end
-ModelWrapper(parameter::A, flattendefault::F=FlattenDefault()) where {A<:NamedTuple,F<:FlattenDefault} =
-    ModelWrapper(BaseModel(), parameter, flattendefault)
+ModelWrapper(parameter::A, arg::C=(;), flattendefault::F=FlattenDefault()) where {A<:NamedTuple,C<:NamedTuple,F<:FlattenDefault} =
+    ModelWrapper(BaseModel(), parameter, arg, flattendefault)
 
 ############################################################################################
 # Basic functions for Model struct

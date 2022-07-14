@@ -49,5 +49,5 @@ include("checks.jl")
 
 ############################################################################################
 # Export
-export Objective, update!, log_density, log_density_and_gradient#,
+export update!, log_density, log_density_and_gradient#,
 #log_density_and_hessian
