@@ -63,6 +63,5 @@ include("TestHelper.jl")
     include("test-models.jl")
     include("test-tagged.jl")
     include("test-objective.jl")
-#    include("test-differentiation.jl")
 
 end
