@@ -72,7 +72,7 @@ Simulate data given Model parameter.
 ```
 
 """
-function simulate(model::ModelWrapper) end
+function simulate end
 
 ############################################################################################
 # Dispatch Model struct for .Core functions

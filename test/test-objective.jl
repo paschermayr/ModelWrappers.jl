@@ -19,13 +19,14 @@ function (objective::Objective{<:ModelWrapper{SossBenchmark}})(θ::NamedTuple)
     )
     return lp + ll
 end
+simulate(_rng, model::M) where {M<:ModelWrapper{SossBenchmark}} = randn(100)
 
 @testset "Objective - No Initialization" begin
     initmethod = NoInitialization()
     _objective = deepcopy(obectiveSossBM)
     _val = deepcopy(_objective.model.val)
 
-    initmethod(nothing, _objective)
+    initmethod(_RNG, nothing, _objective)
     @test _val == _objective.model.val
 end
 
@@ -34,7 +35,7 @@ end
     _objective = deepcopy(obectiveSossBM)
     _val = deepcopy(_objective.model.val)
 
-    initmethod(nothing, _objective)
+    initmethod(_RNG, nothing, _objective)
     @test _val != _objective.model.val
 end
 
@@ -43,9 +44,19 @@ end
     _objective = Objective(deepcopy(obectiveSossBM.model), obectiveSossBM.data, Tagged(obectiveSossBM.model, :σ))
     _val = deepcopy(_objective.model.val)
 
-    initmethod(nothing, _objective)
+    initmethod(_RNG, nothing, _objective)
     @test _val != _objective.model.val
     @test _val.μ == _objective.model.val.μ
+end
+
+@testset "Objective - Prior Predictive distribution" begin
+    initmethod = PriorInitialization(100)
+    _objective = Objective(deepcopy(obectiveSossBM.model), obectiveSossBM.data, Tagged(obectiveSossBM.model, :σ))
+    _val = deepcopy(_objective.model.val)
+
+    _dat = predictive(_RNG, _objective, initmethod, 100)
+    @test _val != _objective.model.val
+    @test typeof(_objective.data) == eltype(_dat)
 end
 
 ################################################################################

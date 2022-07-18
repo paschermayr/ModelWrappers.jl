@@ -43,6 +43,8 @@ using ModelWrappers:
     Simplex_from_flatten!,
     Simplex_from_flatten
 
+import ModelWrappers: simulate
+
 ############################################################################################
 # Include Files
 include("TestHelper.jl")
