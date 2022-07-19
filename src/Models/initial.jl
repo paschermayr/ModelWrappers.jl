@@ -30,6 +30,7 @@ struct OptimInitialization{T} <: AbstractInitialization
         return new{T}(method)
     end
 end
+OptimInitialization() = OptimInitialization(nothing)
 
 ############################################################################################
 function sample(_rng::Random.AbstractRNG, initialization::PriorInitialization, kernel, objective::Objective)
