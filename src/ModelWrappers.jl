@@ -4,7 +4,7 @@ module ModelWrappers
 #Import External packages
 import Base: Base, length, fill, fill!
 import StatsBase: StatsBase, sample, sample!
-import BaytesCore: BaytesCore, subset, update
+import BaytesCore: BaytesCore, subset, update, generate_showvalues, generate
 using BaytesCore:
     AbstractModelWrapper,
     AbstractObjective,
