@@ -122,6 +122,11 @@ function log_abs_det_jac(model::ModelWrapper, tagged::Tagged)
     return log_abs_det_jac(tagged.info.transform.unconstrain, subset(model, tagged))
 end
 
+#########################################
+function print(model::ModelWrapper, tagged::Tagged)
+    return print(model, keys(tagged.parameter))
+end
+
 ############################################################################################
 export Tagged,
     length,
@@ -139,4 +144,5 @@ export Tagged,
     sample!,
     log_prior,
     log_prior_with_transform,
-    log_abs_det_jac
+    log_abs_det_jac,
+    print

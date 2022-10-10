@@ -290,6 +290,32 @@ function log_abs_det_jac(model::ModelWrapper)
     return log_abs_det_jac(model.info.transform.unconstrain, model.val)
 end
 
+#########################################
+function print(sym::Symbol, val, constraint)
+    println("#############################################################")
+    println("Parameter ", sym)
+    println("Dimensionality: ", size(val))
+    println("Constraint: ", typeof(constraint))
+    println("Value: ", val)
+end
+
+"""
+$(SIGNATURES)
+Print 'model' parameter values and constraints of symbols 'params'.
+
+# Examples
+```julia
+```
+
+"""
+function print(model::ModelWrapper, params::S = keys(model.val)) where {S<:Union{Symbol,NTuple{k,Symbol} where k}}
+    for sym in params
+        val = getfield(model.val, sym)
+        constraint = getfield(model.info.constraint, sym)
+        print(sym, val, constraint)
+    end
+end
+
 ############################################################################################
 export
     ModelName,
@@ -312,4 +338,5 @@ export
     sample!,
     log_prior,
     log_prior_with_transform,
-    log_abs_det_jac
+    log_abs_det_jac,
+    print

@@ -2,7 +2,7 @@ module ModelWrappers
 
 ############################################################################################
 #Import External packages
-import Base: Base, length, fill, fill!
+import Base: Base, length, fill, fill!, print
 import StatsBase: StatsBase, sample, sample!
 import BaytesCore: BaytesCore, subset, update, generate_showvalues, generate
 using BaytesCore:

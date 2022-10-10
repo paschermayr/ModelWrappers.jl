@@ -53,5 +53,8 @@ _params = [sample(_modelProb, _targets[iter]) for iter in eachindex(_syms)]
         sample(_model_temp, _target)
         sample!(_RNG, _model_temp, _target)
         sample!(_model_temp, _target)
+
+        print(_model_temp, _target)
+
     end
 end
