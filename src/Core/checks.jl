@@ -31,7 +31,7 @@ function _checkfinite(θ::Tuple, max_val::R=max_val) where {R<:Real}
     return all(map(_checkfinite, θ))
 end
 function _checkfinite(θ::N, max_val::R=max_val) where {N<:NamedTuple} where {R<:Real}
-    return all(map(_checkfinite, θ))
+    return all(map(_checkfinite, values(θ)))
 end
 
 ############################################################################################
