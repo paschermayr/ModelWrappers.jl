@@ -103,6 +103,7 @@ function constrain(
 ) where {names1, names2}
     #!NOTE: ReverseDiff only works with NamedTuple{names} instead of typeof(b⁻¹ᵥ). Takes much more time - might remove ReverseDiff once other ReverseModeAD package comes up.
     # see: https://github.com/JuliaDiff/ReverseDiff.jl/issues/178
+#    return typeof(b⁻¹ᵥ)(constrain(values(b⁻¹ᵥ), values(θᵤ)))
     return NamedTuple{names1}(constrain(values(b⁻¹ᵥ), values(θᵤ)))
 end
 
@@ -113,6 +114,7 @@ function unconstrain(
 ) where {names1, names2}
     #!NOTE: ReverseDiff only works with NamedTuple{names} instead of typeof(b⁻¹ᵥ). Takes much more time - might remove ReverseDiff once other ReverseModeAD package comes up.
     # see: https://github.com/JuliaDiff/ReverseDiff.jl/issues/178
+#    return typeof(bᵥ)(unconstrain(values(bᵥ), values(θ)))
     return NamedTuple{names1}(unconstrain(values(bᵥ), values(θ)))
 end
 

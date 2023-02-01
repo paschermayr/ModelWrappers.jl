@@ -45,6 +45,20 @@ paramnames(objective::Objective) = paramnames(objective.tagged)
 
 ############################################################################################
 # A bunch of functions that can be used/extended for target model in Sampling process
+
+"""
+$(SIGNATURES)
+Functor to call target function for Model given parameter and data. Default method to be used in Automatic Differentiation. model.arg and data are arguments so they can be declared as constant with Enzyme AD engine.
+
+# Examples
+```julia
+```
+
+"""
+function (objective::Objective)(θ::NamedTuple, arg = objective.model.arg, data = objective.data)
+    return objective(θ)
+end
+
 """
 $(SIGNATURES)
 Functor to call target function for Model given parameter and data.
@@ -55,7 +69,9 @@ Functor to call target function for Model given parameter and data.
 
 """
 function (objective::Objective)(θ)
-    return 0.0
+    return println("No method yet implemented for model ", objective.model.id,
+        ", dispatch on function (objective::Objective{<:ModelWrapper{BaseModel}})(θ::NamedTuple)"
+    )
 end
 
 """
@@ -104,7 +120,7 @@ function dynamics(objective::Objective)
 end
 
 ############################################################################################
-function (objective::Objective)(θᵤ::AbstractVector{T}) where {T<:Real}
+function (objective::Objective)(θᵤ::AbstractVector{T}, arg::A = objective.model.arg, data::D = objective.data) where {T<:Real, A, D}
     @unpack model, data, tagged, temperature = objective
     ## Convert vector θᵤ back to constrained space as NamedTuple
     θ = constrain(tagged.info.transform, unflattenAD(tagged.info.reconstruct, θᵤ))
@@ -114,7 +130,7 @@ function (objective::Objective)(θᵤ::AbstractVector{T}) where {T<:Real}
     ℓjac = log_abs_det_jac(tagged.info.transform.unconstrain, θ)
     _checkfinite(ℓjac) || return -Inf
     ## Evaluate objective
-    ℓℒ = objective(merge(model.val, θ))
+    ℓℒ = objective(merge(model.val, θ), arg, data)
     ## Return log posterior
     return temperature * (ℓℒ + ℓjac)
 end

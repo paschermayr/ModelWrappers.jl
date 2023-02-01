@@ -29,8 +29,6 @@ function _check(
     return true
 end
 
-idx_upper = tag(zeros(3,3), false, true)
-sum(idx_upper)
 ############################################################################################
 #!TODO: Works with flatten/unflatten - but constraint/unconstraint seems to deduce wrong type for ReverseDiff from Bijector - works fine with ForwardDiff/Zygote
 #!NOTE: Bijectors map to lower triangular matrix while most AD libraries evaluate upper triangular matrices.
