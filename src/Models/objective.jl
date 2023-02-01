@@ -120,8 +120,9 @@ function dynamics(objective::Objective)
 end
 
 ############################################################################################
+#!NOTE: model.arg and data should be a function argument so for Enzyme.jl AD engine we can define them as Constant in the AD call
 function (objective::Objective)(θᵤ::AbstractVector{T}, arg::A = objective.model.arg, data::D = objective.data) where {T<:Real, A, D}
-    @unpack model, data, tagged, temperature = objective
+    @unpack model, tagged, temperature = objective
     ## Convert vector θᵤ back to constrained space as NamedTuple
     θ = constrain(tagged.info.transform, unflattenAD(tagged.info.reconstruct, θᵤ))
     #!NOTE: There are border cases where θᵤ is still finite, but θ no longer after transformation, so have to cover this separately
