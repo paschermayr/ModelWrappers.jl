@@ -144,7 +144,7 @@ myobjective = Objective(mymodel, data, (:μ, :σ))
 function (objective::Objective{<:ModelWrapper{BaseModel}})(θ::NamedTuple)
 	@unpack data = objective
 	lprior = Distributions.logpdf(Distributions.Normal(),θ.μ) + Distributions.logpdf(Distributions.Exponential(), θ.σ)
-    llik = sum(Distributions.logpdf( Distributions.Normal(θ.μ, θ.σ), data[iter] ) for iter in eachindex(data))
+    	llik = sum(Distributions.logpdf( Distributions.Normal(θ.μ, θ.σ), data[iter] ) for iter in eachindex(data))
 	return lprior + llik
 end
 ```
