@@ -62,16 +62,16 @@ end
 
 ############################################################################################
 function flatten(info::ParameterInfo, x)
-    return flatten(info.constructor, x)
+    return flatten(info.reconstruct, x)
 end
 function flattenAD(info::ParameterInfo, x)
-    return flattenAD(info.constructor, x)
+    return flattenAD(info.reconstruct, x)
 end
 function unflatten(info::ParameterInfo, x)
-    return unflatten(info.constructor, x)
+    return unflatten(info.reconstruct, x)
 end
 function unflattenAD(info::ParameterInfo, x)
-    return unflattenAD(info.constructor, x)
+    return unflattenAD(info.reconstruct, x)
 end
 
 ############################################################################################
