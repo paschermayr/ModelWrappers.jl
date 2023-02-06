@@ -15,7 +15,7 @@ struct ParameterInfo{R<:ReConstructor,T<:TransformConstructor}
         reconstruct::R, transform::T
     ) where {R<:ReConstructor,T<:TransformConstructor}
         return new{R, T}(
-            constructor, transformer
+            reconstruct, transform
         )
     end
 end
@@ -27,7 +27,7 @@ function ParameterInfo(
     ## Assign transformer constraint NamedTuple
     transformer = TransformConstructor(constraint, val)
     ## Return ParameterInfo
-    return new{typeof(constructor),typeof(transformer)}(
+    return ParameterInfo{typeof(constructor),typeof(transformer)}(
         constructor, transformer
     )
 end
@@ -44,7 +44,7 @@ function ParameterInfo(
     ## Assign transformer constraint NamedTuple
     transformer = TransformConstructor(constraint, val)
     ## Return ParameterInfo
-    return new{typeof(constructor),typeof(transformer)}(
+    return ParameterInfo{typeof(constructor),typeof(transformer)}(
         constructor, transformer
     )
 end
