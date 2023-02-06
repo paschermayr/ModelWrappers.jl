@@ -27,7 +27,7 @@ function ParameterInfo(
     ## Assign transformer constraint NamedTuple
     transformer = TransformConstructor(constraint, val)
     ## Return ParameterInfo
-    return ParameterInfo{typeof(constructor),typeof(transformer)}(
+    return ParameterInfo(
         constructor, transformer
     )
 end
@@ -44,7 +44,7 @@ function ParameterInfo(
     ## Assign transformer constraint NamedTuple
     transformer = TransformConstructor(constraint, val)
     ## Return ParameterInfo
-    return ParameterInfo{typeof(constructor),typeof(transformer)}(
+    return ParameterInfo(
         constructor, transformer
     )
 end

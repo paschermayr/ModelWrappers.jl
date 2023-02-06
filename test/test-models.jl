@@ -1,7 +1,6 @@
 ############################################################################################
 # Basic Functionality
 _modelProb = ModelWrapper(ProbModel(), val_dist)
-
 @testset "Models - basic functionality" begin
     ## Type Check 1 - Constrain/Unconstrain
     theta_unconstrained_vec = randn(length(_modelProb))
