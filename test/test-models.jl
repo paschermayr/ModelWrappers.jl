@@ -35,7 +35,6 @@ end
 
 ############################################################################################
 ## Model with transforms in lower dimensions
-
 _modelExample = ModelWrapper(ExampleModel(), _val_examplemodel)
 _tagged = Tagged(_modelExample)
 @testset "Models - Model with transforms in lower dimensions" begin

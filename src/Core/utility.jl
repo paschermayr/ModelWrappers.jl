@@ -112,7 +112,7 @@ function paramnames(
     types::F,
     constraint::NamedTuple,
     val::NamedTuple{names},
-) where {F<:FlattenDefault,N,names}
+) where {F<:FlattenDefault, names}
     return reduce(
         vcat, map(fld -> paramnames(fld, types, constraint[fld], val[fld]), names)
     )

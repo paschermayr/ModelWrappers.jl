@@ -74,7 +74,7 @@ end
 
 ############################################################################################
 #!NOTE: If we map over collections, need to extend this to params.jl functions:
-# _check, construct_transform, constrain, unconstrain, log_abs_det_jac
+# _check, constrain, unconstrain, log_abs_det_jac
 
 ############################################################################################
 function _check(
@@ -84,7 +84,7 @@ function _check(
 ) where {names1, names2}
     return _check(_rng, values(constraint), values(x))
 end
-
+#=
 ############################################################################################
 function construct_transform(
     constraint::NamedTuple{names1},
@@ -95,42 +95,41 @@ function construct_transform(
 ## Return flatten/unflatten for AbstractArray
     return NamedTuple{names1}(_transform), NamedTuple{names1}(_inversetransform)
 end
-
+=#
 ############################################################################################
 function constrain(
-    b⁻¹ᵥ::NamedTuple{names1},
+    constraint::NamedTuple{names1},
     θᵤ::NamedTuple{names2}
 ) where {names1, names2}
     #!NOTE: ReverseDiff only works with NamedTuple{names} instead of typeof(b⁻¹ᵥ). Takes much more time - might remove ReverseDiff once other ReverseModeAD package comes up.
     # see: https://github.com/JuliaDiff/ReverseDiff.jl/issues/178
 #    return typeof(b⁻¹ᵥ)(constrain(values(b⁻¹ᵥ), values(θᵤ)))
-    return NamedTuple{names1}(constrain(values(b⁻¹ᵥ), values(θᵤ)))
+    return NamedTuple{names1}(constrain(values(constraint), values(θᵤ)))
 end
 
 ############################################################################################
 function unconstrain(
-    bᵥ::NamedTuple{names1},
+    constraint::NamedTuple{names1},
     θ::NamedTuple{names2}
 ) where {names1, names2}
     #!NOTE: ReverseDiff only works with NamedTuple{names} instead of typeof(b⁻¹ᵥ). Takes much more time - might remove ReverseDiff once other ReverseModeAD package comes up.
     # see: https://github.com/JuliaDiff/ReverseDiff.jl/issues/178
 #    return typeof(bᵥ)(unconstrain(values(bᵥ), values(θ)))
-    return NamedTuple{names1}(unconstrain(values(bᵥ), values(θ)))
+    return NamedTuple{names1}(unconstrain(values(constraint), values(θ)))
 end
 
 ############################################################################################
 function log_abs_det_jac(
-    bᵥ::NamedTuple{names1},
+    constraint::NamedTuple{names1},
     θ::NamedTuple{names2}
 ) where {names1, names2}
-    return log_abs_det_jac(values(bᵥ), values(θ))
+    return log_abs_det_jac(values(constraint), values(θ))
 end
 
 ############################################################################################
 #Export
 export
     construct_flatten,
-    construct_transform,
     constrain,
     unconstrain,
     log_abs_det_jac

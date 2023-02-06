@@ -1,4 +1,5 @@
 ############################################################################################
+# 1. Create a new Constraint, MyConstraint <: AbstractConstraint.
 """
 $(TYPEDEF)
 
@@ -7,22 +8,47 @@ Utility struct to help assign boundaries to parameter.
 # Fields
 $(TYPEDFIELDS)
 """
-struct Simplex <: AbstractConstraint
+struct Simplex{B<:Bijection} <: AbstractConstraint
     len::Int64
+    bijection::B
     function Simplex(len::Integer)
         ArgCheck.@argcheck len > 0
-        return new(len)
+        b = Bijection(Bijectors.SimplexBijector{true}())
+        return new{typeof(b)}(len, b)
     end
 end
 Simplex(vec::AbstractVector) = Simplex(length(vec))
 
 ############################################################################################
-function construct_transform(constraint::Simplex, val)
-    transform = Bijectors.SimplexBijector{1, true}()
-    return transform, Bijectors.inverse(transform)
+#=
+2. Define functions to unconstrain(constraint, val) to unconstrained domain valᵤ, and a function constrain(constraint, valᵤ) back to val.
+Dimensions of val and valᵤ should be the same, flattening will be handled separately.
+=#
+function unconstrain(constraint::Simplex, val)
+    return unconstrain(constraint.bijection, val)
+end
+function constrain(constraint::Simplex, valᵤ)
+    return constrain(constraint.bijection, valᵤ)
 end
 
 ############################################################################################
+# 3. Optional - Check if check_transformer(constraint, val) works
+#=
+constraint = Simplex(3)
+val = [.2, .3, .5]
+val_u = unconstrain(constraint, val)
+val_o = constrain(constraint, val_u)
+check_constraint(constraint, val)
+=#
+
+############################################################################################
+# 4. If Objective is used, include a method that computes logabsdet from transformation to unconstrained domain. Same syntax as in Bijectors.jl package is used, i.e., -log_abs_det_jac is returned for computations.
+function log_abs_det_jac(constraint::Simplex, θ::T) where {T}
+    return log_abs_det_jac(constraint.bijection, θ)
+end
+
+############################################################################################
+# 5. Add _check function to check for all other peculiar things that should be tested if new releases come out and add to Test section.
 function _check(
     _rng::Random.AbstractRNG,
     constraint::Simplex,
@@ -34,12 +60,7 @@ function _check(
 end
 
 ############################################################################################
-#= !NOTES:
-    (1) Constrained's last element will sum up to 1.
-    (2) Unconstrained's last element is irrelevant for Bijector{Simplex} in default method.
-    (3) Consequently, we can flatten in length(x)-1 dimensions, and unflatten back to length(x) by summing up elements for length(x)'s element.
-    This works for both constrained/unconstrained.
-=#
+# 6. Optionally - choose to only flatten k-1 parameter if Simplex is constraint
 function construct_flatten(
     output::Type{T},
     flattentype::F,
@@ -50,7 +71,7 @@ function construct_flatten(
     T<:AbstractFloat,
     F<:FlattenTypes,
     R<:Real,
-    C<:Union{Simplex, Distributions.Dirichlet, Bijectors.SimplexBijector}
+    C<:Union{Simplex, DistributionConstraint{<:Distributions.Dirichlet}, Distributions.Dirichlet, Bijectors.SimplexBijector}
 }
     buffer_flat = zeros(T, length(x)-1)
     len_flat = length(x)
@@ -77,7 +98,7 @@ function construct_flatten(
     T<:AbstractFloat,
     F<:FlattenTypes,
     R<:Real,
-    C<:Union{Simplex, Distributions.Dirichlet, Bijectors.SimplexBijector}
+    C<:Union{Simplex, DistributionConstraint{<:Distributions.Dirichlet}, Distributions.Dirichlet, Bijectors.SimplexBijector}
 }
     len_flat = length(x)
     len_unflat = len_flat-1
@@ -95,20 +116,10 @@ function construct_flatten(
 end
 
 ############################################################################################
-#=
-!NOTE: For this constraint, we use a Bijector as Transformer, so we do not need to add a new functors
-1. MyTransformer <: AbstractTransformer, MyInverseTransformer <: AbstractTransformer
-2. define a function construct_transform(MyConstraint, val) -> MyTransformer, MyInverseTransformer
-3. overload unconstrain and log_abs_det_jac on MyTransformer.
-4. overload constrain on MyInverseTransformer.
-=#
-
-############################################################################################
 #Export
 export
     Simplex,
     construct_flatten,
-    construct_transform,
     constrain,
     unconstrain,
     log_abs_det_jac

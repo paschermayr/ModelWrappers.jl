@@ -6,7 +6,7 @@ using Random: Random, AbstractRNG, seed!
 #using Soss
 using LinearAlgebra
 using Distributions, Bijectors, DistributionsAD
-using ForwardDiff, ReverseDiff, Zygote
+using ForwardDiff, ReverseDiff, Zygote, Enzyme
 using ArgCheck
 
 ############################################################################################
@@ -27,7 +27,6 @@ using ModelWrappers:
     _anyparam,
     _checksampleable,
     construct_flatten,
-    construct_transform,
     flatten,
     flattenAD,
     unflatten,
@@ -57,6 +56,7 @@ include("TestHelper.jl")
 
     include("test-core.jl")
     include("test-flatten.jl")
+    include("test-bijector.jl")
 
     include("test-models.jl")
     include("test-tagged.jl")

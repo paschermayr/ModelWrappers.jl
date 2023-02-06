@@ -3,7 +3,6 @@
 
 ############################################################################################
 # Load sub-container
-include("parameterinfo.jl")
 include("modelwrapper.jl")
 include("tagged.jl")
 include("objective.jl")

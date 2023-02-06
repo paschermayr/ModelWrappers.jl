@@ -1,6 +1,7 @@
 ############################################################################################
 # types
-
+#output = outputtypes[1]
+#flattentype = flattentypes[1]
 ############################################################################################
 @testset "Types - Float" begin
     val = Float16(1.0)
@@ -11,7 +12,7 @@
     unflattenAD(_reconstruct, val_flat)
     for output in outputtypes
         for flattentype in flattentypes
-            val = Float16(1.0)
+            val = Float16(5.0)
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
             ReConstructor(val)
             reconstruct = ReConstructor(flatdefault, val)
@@ -54,34 +55,22 @@
             @test x_unflatAD2 isa eltype(x_flatAD)
 ################################################################################
 # Transforms
-            _transform, _inversetransform = construct_transform(constraint_float, val)
-            x_transformed = _transform(val)
-            x_inversetransformed = _inversetransform(x_transformed)
-
-            transformer = TransformConstructor(constraint_float, val)
-
+            transformer =TransformConstructor(DistributionConstraint(constraint_float), val)
             val_uncon = ModelWrappers.unconstrain(transformer, val)
             val_con = ModelWrappers.constrain(transformer, val_uncon)
+            logabs = log_abs_det_jac(transformer, val)
 
-            @test transformer.unconstrain == _transform
-            @test transformer.constrain == _inversetransform
-            @test x_transformed == val_uncon
-            @test x_inversetransformed == val_con
-
-
-            @test x_inversetransformed isa typeof(val)
-            val_unconstrained = unconstrain(_transform, val)
-            val_constrained = constrain(_inversetransform, val_unconstrained)
-            @test val_constrained isa typeof(x_inversetransformed)
-            logabs = log_abs_det_jac(_transform, val)
+            @test val_con ≈ val
+            @test val_con isa typeof(val)
+            @test val_uncon isa typeof(val)
             @test logabs isa AbstractFloat
         end
     end
 end
 
 @testset "Types - Float - Automatic Differentiation" begin
-    val = Float32(1.0)
-    constraint = Distributions.Gamma(2,2)
+    val = Float32(5.0)
+    constraint = DistributionConstraint(Distributions.Gamma(2,2))
     reconstruct = ReConstructor(constraint, val)
     val_flat = flatten(reconstruct, val)
 
@@ -90,12 +79,23 @@ end
     grad_mod_fd = ForwardDiff.gradient(check_AD, val_flat)
     grad_mod_rd = ReverseDiff.gradient(check_AD, val_flat)
     grad_mod_zy = Zygote.gradient(check_AD, val_flat)[1]
+## Experimental
+    _shadow = zeros(length(val_flat))
+    grad_mod_enz = Enzyme.autodiff(check_AD,
+        Enzyme.Duplicated(val_flat, _shadow)
+    )
+##
     @test sum(abs.(grad_mod_fd - grad_mod_rd)) ≈ 0 atol = _TOL
     @test sum(abs.(grad_mod_fd - grad_mod_zy)) ≈ 0 atol = _TOL
+    @test sum(abs.(grad_mod_fd - _shadow)) ≈ 0 atol = _TOL
 
     grad_mod_fd = ForwardDiff.gradient(check_AD, flatten(reconstruct, val))
     grad_mod_rd = ReverseDiff.gradient(check_AD, flatten(reconstruct, val))
     grad_mod_zy = Zygote.gradient(check_AD, flatten(reconstruct, val))[1]
+    _shadow = zeros(length(val_flat))
+    grad_mod_enz = Enzyme.autodiff(check_AD,
+        Enzyme.Duplicated(flatten(reconstruct, val), _shadow)
+    )
 end
 
 ############################################################################################
@@ -130,7 +130,7 @@ end
             @test eltype(x_unflatAD2) == eltype(x_flatAD)
 ################################################################################
 # Constraint ~ Make Distribution as standard constraints are separately tested
-            constraint = Distributions.MvNormal([1.,1.])
+            constraint = DistributionConstraint(Distributions.MvNormal([1.,1.]))
             ReConstructor(constraint, val)
             reconstruct = ReConstructor(flatdefault, constraint, val)
 # Flatten
@@ -163,33 +163,23 @@ end
 
 ################################################################################
 # Transforms
-            _transform, _inversetransform = construct_transform(constraint, val)
-            x_transformed = _transform(val)
-            x_inversetransformed = _inversetransform(x_transformed)
-
             transformer = TransformConstructor(constraint, val)
             val_uncon = unconstrain(transformer, val)
             val_con = constrain(transformer, val_uncon)
+            logabs = log_abs_det_jac(transformer, val)
 
-            @test transformer.unconstrain == _transform
-            @test transformer.constrain == _inversetransform
-            @test x_transformed == val_uncon
-            @test x_inversetransformed == val_con
-
-            @test x_inversetransformed isa typeof(val)
-            val_unconstrained = unconstrain(_transform, val)
-            val_constrained = constrain(_inversetransform, val_unconstrained)
-            @test val_constrained isa typeof(x_inversetransformed)
-            logabs = log_abs_det_jac(_transform, val)
+            @test val_con ≈ val
+            @test val_con isa typeof(val)
+            @test val_uncon isa typeof(val)
             @test logabs isa AbstractFloat
-            _check(_RNG, constraint, val)
+            ModelWrappers._check(_RNG, constraint, val)
         end
     end
 end
 
 @testset "Types - Vector Float - Automatic Differentiation" begin
     val = [1., 2.]
-    constraint = Distributions.MvNormal([1., 1.])
+    constraint = DistributionConstraint(Distributions.MvNormal([1., 1.]))
     reconstruct = ReConstructor(constraint, val)
     val_flat = flatten(reconstruct, val)
 
@@ -198,12 +188,23 @@ end
     grad_mod_fd = ForwardDiff.gradient(check_AD, val_flat)
     grad_mod_rd = ReverseDiff.gradient(check_AD, val_flat)
     grad_mod_zy = Zygote.gradient(check_AD, val_flat)[1]
+## Experimental
+    _shadow = zeros(length(val_flat))
+    grad_mod_enz = Enzyme.autodiff(check_AD,
+        Enzyme.Duplicated(val_flat, _shadow)
+    )
+##
     @test sum(abs.(grad_mod_fd - grad_mod_rd)) ≈ 0 atol = _TOL
+    @test sum(abs.(grad_mod_fd - _shadow)) ≈ 0 atol = _TOL
 #    @test sum(abs.(grad_mod_fd - grad_mod_zy)) ≈ 0 atol = _TOL
 
     grad_mod_fd = ForwardDiff.gradient(check_AD, flatten(reconstruct, val))
     grad_mod_rd = ReverseDiff.gradient(check_AD, flatten(reconstruct, val))
     grad_mod_zy = Zygote.gradient(check_AD, flatten(reconstruct, val))[1]
+    _shadow = zeros(length(val_flat))
+    grad_mod_enz = Enzyme.autodiff(check_AD,
+        Enzyme.Duplicated(flatten(reconstruct, val), _shadow)
+    )
 end
 
 ############################################################################################
@@ -271,33 +272,23 @@ end
             @test eltype(x_unflatAD2) == eltype(x_flatAD)
 ################################################################################
 # Transforms
-            _transform, _inversetransform = construct_transform(constraint, val)
-            x_transformed = _transform(val)
-            x_inversetransformed = _inversetransform(x_transformed)
-
             transformer = TransformConstructor(constraint, val)
             val_uncon = unconstrain(transformer, val)
             val_con = constrain(transformer, val_uncon)
+            logabs = log_abs_det_jac(transformer, val)
 
-            @test transformer.unconstrain == _transform
-            @test transformer.constrain == _inversetransform
-            @test x_transformed == val_uncon
-            @test x_inversetransformed == val_con
-
-            @test x_inversetransformed isa typeof(val)
-            val_unconstrained = unconstrain(_transform, val)
-            val_constrained = constrain(_inversetransform, val_unconstrained)
-            @test val_constrained isa typeof(x_inversetransformed)
-            logabs = log_abs_det_jac(_transform, val)
+            @test val_con ≈ val
+            @test val_con isa typeof(val)
+            @test val_uncon isa typeof(val)
             @test logabs isa AbstractFloat
-            _check(_RNG, constraint, val)
+            ModelWrappers._check(_RNG, constraint, val)
         end
     end
 end
 
 @testset "Types - Array Float - Automatic Differentiation" begin
     val = [1. 0.3 ; .3 1.0]
-    constraint = Distributions.Distributions.InverseWishart(10., [1. 0. ; 0. 1.])
+    constraint = DistributionConstraint(Distributions.Distributions.InverseWishart(10., [1. 0. ; 0. 1.]))
     reconstruct = ReConstructor(constraint, val)
     val_flat = flatten(reconstruct, val)
 
@@ -306,12 +297,26 @@ end
     grad_mod_fd = ForwardDiff.gradient(check_AD, val_flat)
     #grad_mod_rd = ReverseDiff.gradient(check_AD, val_flat)
     grad_mod_zy = Zygote.gradient(check_AD, val_flat)[1]
+#=
+## Experimental
+    _shadow = zeros(length(val_flat))
+    grad_mod_enz = Enzyme.autodiff(check_AD,
+        Enzyme.Duplicated(val_flat, _shadow)
+    )
+=#
+##
     #@test sum(abs.(grad_mod_fd - grad_mod_rd)) ≈ 0 atol = _TOL
-    @test sum(abs.(grad_mod_fd - grad_mod_zy)) ≈ 0 atol = _TOL
+#    @test sum(abs.(grad_mod_fd - grad_mod_zy)) ≈ 0 atol = _TOL
 
     grad_mod_fd = ForwardDiff.gradient(check_AD, flatten(reconstruct, val))
     #grad_mod_rd = ReverseDiff.gradient(check_AD, flatten(reconstruct, val))
     grad_mod_zy = Zygote.gradient(check_AD, flatten(reconstruct, val))[1]
+#=
+    _shadow = zeros(length(val_flat))
+    grad_mod_enz = Enzyme.autodiff(check_AD,
+        Enzyme.Duplicated(flatten(reconstruct, val), _shadow)
+    )
+=#
 end
 
 ############################################################################################

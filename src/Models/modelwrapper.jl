@@ -43,13 +43,10 @@ end
 function ModelWrapper(
     id::M, parameter::A, arg::C=(;), flattendefault::F=FlattenDefault()
 ) where {M<:Union{P,ModelName} where {P},A<:NamedTuple,C<:NamedTuple,F<:FlattenDefault}
-    ## Check if all values in val are of type Param
-    ArgCheck.@argcheck _checkparams(parameter) "All values in (nested) NamedTuple have to be of Type Param."
+    ## Create ParameterInfo struct
+    paraminfo = ParameterInfo(flattendefault, parameter)
     ## Split between values and constraints
     val = _get_val(parameter)
-    constraint = _get_constraint(parameter)
-    ## Create ParameterInfo struct
-    paraminfo = ParameterInfo(constraint, val, flattendefault)
     ## Return ModelWrapper
     return ModelWrapper(val, arg, paraminfo, id)
 end
@@ -134,7 +131,7 @@ Unconstrain 'model' values and return as NamedTuple.
 
 """
 function unconstrain(model::ModelWrapper)
-    return unconstrain(model.info.transform, model.val)
+    return unconstrain(model.info, model.val)
 end
 
 """
@@ -147,7 +144,7 @@ Flatten 'model' values and return as vector.
 
 """
 function flatten(model::ModelWrapper)
-    return flatten(model.info.reconstruct, model.val)
+    return flatten(model.info, model.val)
 end
 
 """
@@ -160,7 +157,7 @@ Flatten and unconstrain 'model' values and return as vector.
 
 """
 function unconstrain_flatten(model::ModelWrapper)
-    return flatten(model.info.reconstruct, unconstrain(model))
+    return flatten(model.info, unconstrain(model))
 end
 
 #########################################
@@ -174,7 +171,7 @@ Unlatten Vector 'θ' given constraints from 'model' and return as NamedTuple.
 
 """
 function unflatten(model::ModelWrapper, θ::AbstractVector{T}) where {T<:Real}
-    return unflatten(model.info.reconstruct, θ)
+    return unflatten(model.info, θ)
 end
 
 """
@@ -201,7 +198,7 @@ Constrain and Unflatten vector 'θᵤ' given 'model' constraints.
 
 """
 function unflatten_constrain(model::ModelWrapper, θᵤ::AbstractVector{T}) where {T<:Real}
-    return constrain(model.info.transform, unflatten(model, θᵤ))
+    return constrain(model.info, unflatten(model, θᵤ))
 end
 
 """
@@ -229,7 +226,7 @@ Sample from 'model' prior and return as NamedTuple.
 
 """
 function sample(_rng::Random.AbstractRNG, model::ModelWrapper)
-    return sample_constraint(_rng, model.info.constraint, model.val)
+    return sample_constraint(_rng, model.info.transform.constraint, model.val)
 end
 sample(model::ModelWrapper) = sample(Random.GLOBAL_RNG, model)
 
@@ -243,8 +240,6 @@ Inplace version of [`sample`](@ref).
 
 """
 function sample!(_rng::Random.AbstractRNG, model::ModelWrapper)
-    #!NOTE: Check no longer needed, as Fixed Tags just return current value
-#    ArgCheck.@argcheck _checkprior(model.info.constraint) "For inplace sample version, all constraints need to be a Distribution."
     model.val = sample(_rng, model)
     return nothing
 end
@@ -261,7 +256,7 @@ Evaluate Log density of 'model' prior given current 'model' values.
 
 """
 function log_prior(model::ModelWrapper)
-    return log_prior(model.info.constraint, model.val)
+    return log_prior(model.info.transform.constraint, model.val)
 end
 
 """
@@ -274,7 +269,7 @@ Evaluate Log density and eventual Jacobian adjustments of 'model' prior given cu
 
 """
 function log_prior_with_transform(model::ModelWrapper)
-    return log_prior_with_transform(model.info.constraint, model.val)
+    return log_prior_with_transform(model.info.transform.constraint, model.val)
 end
 
 """
@@ -287,7 +282,7 @@ Evaluate eventual Jacobian adjustments from transformations at 'model' values.
 
 """
 function log_abs_det_jac(model::ModelWrapper)
-    return log_abs_det_jac(model.info.transform.unconstrain, model.val)
+    return log_abs_det_jac(model.info, model.val)
 end
 
 #########################################
@@ -311,7 +306,7 @@ Print 'model' parameter values and constraints of symbols 'params'.
 function print(model::ModelWrapper, params::S = keys(model.val)) where {S<:Union{Symbol,NTuple{k,Symbol} where k}}
     for sym in params
         val = getfield(model.val, sym)
-        constraint = getfield(model.info.constraint, sym)
+        constraint = getfield(model.info.transform.constraint, sym)
         print(sym, val, constraint)
     end
 end

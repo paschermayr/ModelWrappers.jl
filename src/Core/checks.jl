@@ -47,9 +47,6 @@ Check if 'prior' is a valid density and return Bool. Not exported.
 function _checkprior(prior)
     return false
 end
-function _checkprior(prior::S) where {S<:Distributions.Distribution}
-    return true
-end
 function _checkprior(prior::AbstractVector{T}) where {T}
     @inbounds @simd for iter in eachindex(prior)
         if !_checkprior(prior[iter])
@@ -83,9 +80,6 @@ Check if argument is not fixed. Returns NamedTuple with true/false. Needed in ad
 function _checksampleable(constraint)
     return false
 end
-function _checksampleable(constraint::S) where {S<:Distributions.Distribution}
-    return true
-end
 function _checksampleable(constraint::AbstractVector{T}) where {T}
     @inbounds @simd for iter in eachindex(constraint)
         if !_checksampleable(constraint[iter])
@@ -106,30 +100,6 @@ function _checksampleable(constraint::NamedTuple{names}) where {names}
     return NamedTuple{names}(map(_checksampleable, constraint))
 end
 
-############################################################################################
-#=
-"""
-$(SIGNATURES)
-Check if provided val-constraint combination is valid for Param struct. Not exported.
-
-# Examples
-```julia
-```
-
-"""
-function _checkparam(
-    _rng::Random.AbstractRNG,
-    constraint::AbstractArray,
-    val::AbstractArray,
-)
-    return all(
-        map(constraint, val) do constraintᵢ, valᵢ
-            _checkparam(_rng, constraintᵢ, valᵢ)
-        end,
-    )
-end
-_checkparam(constraint, val) = _checkparam(Random.GLOBAL_RNG, constraint, val)
-=#
 ############################################################################################
 """
 $(SIGNATURES)

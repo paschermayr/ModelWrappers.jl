@@ -16,8 +16,8 @@
 end
 
 @testset "Core - Param" begin
-    Param(_RNG, .1, Normal())
-    param = Param(0.1, Normal())
+    Param(_RNG, Normal(), 1.)
+    param = Param(Normal(), 1.)
 end
 
 @testset "Core - Checkfinite" begin
@@ -31,49 +31,52 @@ end
 end
 
 @testset "Core - Checkprior" begin
-    @test _checkprior(Distributions.Normal())
+    con = DistributionConstraint(Distributions.Normal())
+    @test _checkprior(con)
     @test !_checkprior(Inf)
-    @test _checkprior([Distributions.Normal(), Distributions.Normal()])
-    @test !_checkprior([Inf, Distributions.Normal(), Distributions.Normal()])
-    @test !_checkprior([[Distributions.Normal(), Distributions.Normal()], [Inf, Distributions.Normal(), Distributions.Normal()]])
+    @test _checkprior([con, con])
+    @test !_checkprior([Inf, con, con])
+    @test !_checkprior([[con, con], [Inf,con, con]])
     @test !_checkprior(
-        [[[Distributions.Normal(), Distributions.Normal()], [Distributions.Normal(), Distributions.Normal()]],
-        [Inf, Distributions.Normal(), Distributions.Normal()]]
+        [[con, con], con, con,
+        [Inf, con, con]]
     )
     @test _checkprior([
-        [[Distributions.Normal(), Distributions.Normal()], [Distributions.Normal(), Distributions.Normal()]],
-        [Distributions.Normal(), Distributions.Normal()]
+        [con, con], con, con,
+        [con, con]
     ])
-    @test _checkprior([Distributions.Normal() Distributions.Normal() ; Distributions.Normal() Distributions.Normal()])
-    @test !_checkprior([Distributions.Normal() Distributions.Normal() ; Fixed() Distributions.Normal()])
+    @test !_checkprior([con, con, Fixed(), con])
 end
 
 @testset "Core - Checksampleable" begin
-    @test _checksampleable(Distributions.Normal())
+    con = DistributionConstraint(Distributions.Normal())
+    @test _checksampleable(con)
     @test !_checksampleable(Fixed())
-    @test _checksampleable([Distributions.Normal(), Distributions.Normal()])
-    @test !_checksampleable([Fixed(), Distributions.Normal(), Distributions.Normal()])
-    @test !_checksampleable([[Distributions.Normal(), Distributions.Normal()], [Fixed(), Distributions.Normal(), Distributions.Normal()]])
-    @test !_checksampleable([
-    [[Distributions.Normal(), Distributions.Normal()], [Distributions.Normal(), Distributions.Normal()]],
-    [Fixed(), Distributions.Normal(), Distributions.Normal()]
+    @test _checksampleable([con, con])
+    @test !_checksampleable([Fixed(), con, con])
+    @test !_checksampleable([[con, con], [Fixed(), con, con]])
+    @test !_checksampleable([[
+    [con, con], con, con],
+    [Fixed(), con, con]
     ])
     @test _checksampleable([
-    [[Distributions.Normal(), Distributions.Normal()], [Distributions.Normal(), Distributions.Normal()]],
-    [Distributions.Normal(), Distributions.Normal()]
+    [con, con], con, con,
+    con, con
     ])
-    @test _checksampleable([Distributions.Normal() Distributions.Normal() ; Distributions.Normal() Distributions.Normal()])
-    @test !_checksampleable([Distributions.Normal() Distributions.Normal() ; Fixed() Distributions.Normal()])
+    @test _checksampleable([con con ; con con])
+    @test !_checksampleable([con  ; Fixed() ])
 end
 
 @testset "Core - Checkparams" begin
-    @test _checkparams(Param(.1, Normal()))
+    con = DistributionConstraint(Distributions.Normal())
+    @test _checkparams(Param(con, 1.))
     @test !_checkparams(Fixed())
 end
 
 @testset "Core - _check" begin
-    @test ModelWrappers._check(_RNG, Normal(), .1)
-    @test !ModelWrappers._check(_RNG, MvNormal(LinearAlgebra.Diagonal(map(abs2, [1., 2.]))), .1)
+    con = DistributionConstraint(Distributions.Normal())
+    @test ModelWrappers._check(_RNG, con, .1)
+    @test !ModelWrappers._check(_RNG, DistributionConstraint(MvNormal(LinearAlgebra.Diagonal(map(abs2, [1., 2.])))), .1)
 end
 
 ############################################################################################
@@ -106,15 +109,17 @@ end
 # Utility
 ############################################################################################
 @testset "Core - _get_constraint" begin
-    @test _get_constraint(Param(1., Normal())) isa Distribution
-    @test _get_constraint(Param(1., Fixed())) isa AbstractConstraint
-    @test _get_constraint(Param(1., Unconstrained())) isa AbstractConstraint
+    con = DistributionConstraint(Distributions.Normal())
+    @test _get_constraint(Param(con, 1.)) isa AbstractConstraint
+    @test _get_constraint(Param(Fixed(), 1., )) isa AbstractConstraint
+    @test _get_constraint(Param(Unconstrained(), 1., )) isa AbstractConstraint
 end
 
 @testset "Core - _get_val" begin
-    @test _get_val(Param(1., Normal())) isa Float64
-    @test _get_val(Param(1., Fixed())) isa Float64
-    @test _get_val(Param(1., Unconstrained())) isa Float64
+    con = DistributionConstraint(Distributions.Normal())
+    @test _get_val(Param(con, 1.)) isa Float64
+    @test _get_val(Param(Fixed(), 1.)) isa Float64
+    @test _get_val(Param(Unconstrained(), 1.)) isa Float64
 end
 
 @testset "Core - _allparam" begin

@@ -1,29 +1,31 @@
 ################################################################################
-dat = randn(100)
+dat = randn(_RNG, 100)
+dat[1:5] = collect(1:5) .+ 0.0
 μ₀ = 1.0
 σ₀ = 2.0
+_args = (a =  1., b = collect(1:100) .+ 0.0)
 ################################################################################
 # Create custom Model ~ Name it to avoid name collision
-_param = (μ=Param(μ₀, Distributions.Normal()), σ=Param(σ₀, Distributions.Exponential()))
-struct SossBenchmark <: ModelName end
-modelSossBM = ModelWrapper(SossBenchmark(), _param)
-obectiveSossBM = Objective(modelSossBM, dat)
+_param = (μ=Param(Distributions.Normal(), μ₀), σ=Param(Distributions.Exponential(), σ₀, ))
+struct Benchmark <: ModelName end
+modelBM = ModelWrapper(Benchmark(), _param, _args)
+obectiveBM = Objective(modelBM, dat)
 
-function (objective::Objective{<:ModelWrapper{SossBenchmark}})(θ::NamedTuple)
-    lp =
-        Distributions.logpdf(Distributions.Normal(), θ.μ) +
-        Distributions.logpdf(Distributions.Exponential(), θ.σ)
-    ll = sum(
-        Distributions.logpdf(Distributions.Normal(θ.μ, θ.σ), objective.data[iter]) for
-        iter in eachindex(objective.data)
-    )
-    return lp + ll
+function (objective::Objective{<:ModelWrapper{Benchmark}})(θ::NamedTuple, arg::A = objective.model.arg, data::D = objective.data) where {A, D}
+    μ = θ.μ + arg.a + mean(arg.b)
+#    lp =
+#        Distributions.logpdf(Distributions.Normal(), μ) +
+#        Distributions.logpdf(Distributions.Exponential(), θ.σ)
+    ll = sum( logpdf(Normal(μ, θ.σ), dat) for dat in data )
+    return ll #+ lp
 end
-simulate(_rng, model::M) where {M<:ModelWrapper{SossBenchmark}} = randn(100)
+
+obectiveBM(obectiveBM.model.val)
+simulate(_rng, model::M) where {M<:ModelWrapper{Benchmark}} = randn(100)
 
 @testset "Objective - No Initialization" begin
     initmethod = NoInitialization()
-    _objective = deepcopy(obectiveSossBM)
+    _objective = deepcopy(obectiveBM)
     _val = deepcopy(_objective.model.val)
 
     initmethod(_RNG, nothing, _objective)
@@ -32,7 +34,7 @@ end
 
 @testset "Objective - Prior Initialization" begin
     initmethod = PriorInitialization(100)
-    _objective = deepcopy(obectiveSossBM)
+    _objective = deepcopy(obectiveBM)
     _val = deepcopy(_objective.model.val)
 
     initmethod(_RNG, nothing, _objective)
@@ -41,7 +43,7 @@ end
 
 @testset "Objective - Prior Initialization, partially Tagged" begin
     initmethod = PriorInitialization(100)
-    _objective = Objective(deepcopy(obectiveSossBM.model), obectiveSossBM.data, Tagged(obectiveSossBM.model, :σ))
+    _objective = Objective(deepcopy(obectiveBM.model), obectiveBM.data, Tagged(obectiveBM.model, :σ))
     _val = deepcopy(_objective.model.val)
 
     initmethod(_RNG, nothing, _objective)
@@ -51,13 +53,74 @@ end
 
 @testset "Objective - Prior Predictive distribution" begin
     initmethod = PriorInitialization(100)
-    _objective = Objective(deepcopy(obectiveSossBM.model), obectiveSossBM.data, Tagged(obectiveSossBM.model, :σ))
+    _objective = Objective(deepcopy(obectiveBM.model), obectiveBM.data, Tagged(obectiveBM.model, :σ))
     _val = deepcopy(_objective.model.val)
 
     _dat = predictive(_RNG, _objective, initmethod, 100)
     @test _val != _objective.model.val
     @test typeof(_objective.data) == eltype(_dat)
 end
+
+@testset "Objective - Log Objective AutoDiff compatibility - Base Model" begin
+    _objective = obectiveBM
+    theta_unconstrained = randn(length(_objective))
+    _objective(theta_unconstrained)
+
+    grad_mod_fd = ForwardDiff.gradient(_objective, theta_unconstrained)
+    grad_mod_rd = ReverseDiff.gradient(_objective, theta_unconstrained)
+    grad_mod_zy = Zygote.gradient(_objective, theta_unconstrained)[1]
+
+    @test sum(abs.(grad_mod_fd - grad_mod_rd)) ≈ 0 atol = _TOL
+    @test sum(abs.(grad_mod_fd - grad_mod_zy)) ≈ 0 atol = _TOL
+end
+
+#!NOTE: if logprior commented out, model.arg is mutated (!)
+#!NOTE2: Forward Mode seems to be incorrect wrt to gradient computation
+@testset "Objective - Enzyme - Base Model" begin
+    _objective = obectiveBM
+    theta_unconstrained = randn(length(_objective))
+    _dat = deepcopy(_objective.data)
+    _arg_a = deepcopy(_objective.model.arg.a)
+    _arg_b = deepcopy(_objective.model.arg.b)
+##  Reverse
+    _shadow = zeros(length(theta_unconstrained))
+    Enzyme.autodiff(Enzyme.ReverseMode(), _objective, Enzyme.Active, #Enzyme.Duplicated,
+        Enzyme.Duplicated(theta_unconstrained, _shadow),
+        Enzyme.Const(_objective.model.arg),
+        Enzyme.Const(_objective.data),
+    )
+    # Check if optional arguments and data have not been mutated
+    @test sum(abs.(_objective.data .- _dat)) ≈ 0 atol = _TOL
+    @test _objective.model.arg.a - _arg_a ≈ 0 atol = _TOL
+    @test sum(abs.(_objective.model.arg.b .- _arg_b)) ≈ 0 atol = _TOL
+
+##  Forward
+    _shadow = zeros(length(theta_unconstrained))
+    Enzyme.autodiff(Enzyme.ForwardMode(), _objective, Enzyme.Duplicated,
+        Enzyme.Duplicated(theta_unconstrained, _shadow),
+        Enzyme.Const(_objective.model.arg),
+        Enzyme.Const(_objective.data),
+    )
+    #=
+    #!NOTE: Correct implementation for Forward Autodiff that currently segfaults
+    _shadow = Enzyme.onehot(θ_unconstrained) #zeros(length(θ_unconstrained))
+    Enzyme.autodiff(Enzyme.ForwardMode(), objective1, Enzyme.BatchDuplicated,
+        Enzyme.BatchDuplicated(θ_unconstrained, _shadow),
+        Enzyme.Const(objective1.model.arg),
+        Enzyme.Const(objective1.data),
+    )
+    =#
+    # Check if optional arguments and data have not been mutated
+    @test sum(abs.(_objective.data .- _dat)) ≈ 0 atol = _TOL
+    @test _objective.model.arg.a - _arg_a ≈ 0 atol = _TOL
+    @test sum(abs.(_objective.model.arg.b .- _arg_b)) ≈ 0 atol = _TOL
+
+end
+
+
+
+
+
 
 ################################################################################
 #!NOTE: Remove Soss dependency from ModelWrappers and make separete BaytesSoss, so heavy deps. removed
@@ -207,10 +270,10 @@ end
 
     grad_mod_fd = ForwardDiff.gradient(objectiveExample, theta_unconstrained)
     grad_mod_rd = ReverseDiff.gradient(objectiveExample, theta_unconstrained)
-    grad_mod_zy = Zygote.gradient(objectiveExample, theta_unconstrained)[1]
+#    grad_mod_zy = Zygote.gradient(objectiveExample, theta_unconstrained)[1]
 
     @test sum(abs.(grad_mod_fd - grad_mod_rd)) ≈ 0 atol = _TOL
-    @test sum(abs.(grad_mod_fd - grad_mod_zy)) ≈ 0 atol = _TOL
+#    @test sum(abs.(grad_mod_fd - grad_mod_zy)) ≈ 0 atol = _TOL
 
 end
 

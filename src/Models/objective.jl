@@ -128,7 +128,7 @@ function (objective::Objective)(θᵤ::AbstractVector{T}, arg::A = objective.mod
     #!NOTE: There are border cases where θᵤ is still finite, but θ no longer after transformation, so have to cover this separately
     _checkfinite(θ) || return -Inf
     ## logabsdet_jac for transformations
-    ℓjac = log_abs_det_jac(tagged.info.transform.unconstrain, θ)
+    ℓjac = log_abs_det_jac(tagged.info.transform, θ)
     _checkfinite(ℓjac) || return -Inf
     ## Evaluate objective
     ℓℒ = objective(merge(model.val, θ), arg, data)

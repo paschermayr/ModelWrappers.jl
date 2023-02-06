@@ -1,7 +1,7 @@
 name = "ModelWrappers"
 uuid = "44c54197-9f56-47cc-9960-7f2e20bfb0d6"
 authors = ["Patrick Aschermayr <p.aschermayr@gmail.com>"]
-version = "0.3.9"
+version = "0.4.0"
 
 [deps]
 ArgCheck = "dce04be8-c92d-5529-be00-80e4d2c0e197"
@@ -18,7 +18,7 @@ UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
 [compat]
 ArgCheck = "2"
 BaytesCore = "0.1"
-Bijectors = "0.10"
+Bijectors = "0.12"
 ChainRulesCore = "1"
 Distributions = "0.24, 0.25"
 DocStringExtensions = "0.8, 0.9"
@@ -26,13 +26,13 @@ StatsBase = "0.33"
 UnPack = "1"
 julia = "^1.7"
 
-
 [extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 DistributionsAD = "ced4e74d-a319-5a8a-b0ac-84af2272839c"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
+Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
 
 [targets]
-test = ["Test", "DistributionsAD", "ForwardDiff", "ReverseDiff", "Zygote"]
+test = ["Test", "DistributionsAD", "ForwardDiff", "ReverseDiff", "Zygote", "Enzyme"]

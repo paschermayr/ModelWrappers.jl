@@ -63,7 +63,7 @@ end
 
 ############################################################################################
 #!NOTE: If we map over collections, need to extend this to params.jl functions:
-# _check, construct_transform, constrain, unconstrain, log_abs_det_jac
+# _check, constrain, unconstrain, log_abs_det_jac
 
 ############################################################################################
 function _check(
@@ -77,7 +77,7 @@ function _check(
             end
     )
 end
-
+#=
 ############################################################################################
 function construct_transform(
     constraint::AbstractArray,
@@ -91,36 +91,35 @@ function construct_transform(
 ## Return flatten/unflatten for AbstractArray
     return _transform, _inversetransform
 end
-
+=#
 ############################################################################################
 function constrain(
-    b⁻¹ᵥ::AbstractArray,
+    constraint::AbstractArray,
     θᵤ::AbstractArray
 )
-    return map(constrain, b⁻¹ᵥ, θᵤ)
+    return map(constrain, constraint, θᵤ)
 end
 
 ############################################################################################
 function unconstrain(
-    bᵥ::AbstractArray,
+    constraint::AbstractArray,
     θ::AbstractArray
 )
-    return map(unconstrain, bᵥ, θ)
+    return map(unconstrain, constraint, θ)
 end
 
 ############################################################################################
 function log_abs_det_jac(
-    bᵥ::AbstractArray,
+    constraint::AbstractArray,
     θ::AbstractArray
 )
-    return sum(map(log_abs_det_jac, bᵥ, θ))
+    return sum(map(log_abs_det_jac, constraint, θ))
 end
 
 ############################################################################################
 #Export
 export
     construct_flatten,
-    construct_transform,
     constrain,
     unconstrain,
     log_abs_det_jac

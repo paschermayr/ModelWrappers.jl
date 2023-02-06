@@ -1,11 +1,11 @@
 ############################################################################################
 function check_AD_closure(constraint, val)
     reconstruct = ReConstructor(constraint, val)
-    bij, bij⁻¹ = construct_transform(constraint, val)
+    transform = TransformConstructor(constraint, val)
     function check_AD(θₜ::AbstractVector{T}) where {T<:Real}
-        θ = unflattenAD(reconstruct, θₜ)
-        θ = constrain(bij⁻¹, θ)
-        return log_abs_det_jac(bij, θ)
+        θ_temp = unflattenAD(reconstruct, θₜ)
+        θ = constrain(transform, θ_temp)
+        return log_abs_det_jac(transform, θ)
     end
 end
 

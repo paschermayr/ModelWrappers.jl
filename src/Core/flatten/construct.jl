@@ -7,33 +7,6 @@
 =#
 
 ############################################################################################
-#!NOTE: I am very open to change type/struct names in this section :)
-
-"""
-$(TYPEDEF)
-
-Supertype for dispatching different types of flatten. Determines if all inputs are flattened (FlattenAll) or only continuous values (FlattenContinuous).
-
-# Fields
-$(TYPEDFIELDS)
-"""
-abstract type FlattenTypes end
-struct FlattenAll <: FlattenTypes end
-struct FlattenContinuous <: FlattenTypes end
-
-"""
-$(TYPEDEF)
-
-Determines if unflatten returns original type or if type may change (AD friendly).
-
-# Fields
-$(TYPEDFIELDS)
-"""
-abstract type UnflattenTypes end
-struct UnflattenStrict <: UnflattenTypes end
-struct UnflattenFlexible <: UnflattenTypes end
-
-############################################################################################
 """
 $(TYPEDEF)
 
@@ -56,20 +29,11 @@ function FlattenDefault(;
 end
 
 ############################################################################################
-"""
-    $(FUNCTIONNAME)(x )
-Construct a flatten function for 'x' given specifications in 'df'.
-
-# Examples
-```julia
-```
-"""
-function construct_flatten end
 construct_flatten(x) = construct_flatten(FlattenDefault(), UnflattenStrict(), x)
 construct_flatten(constraint, x) = construct_flatten(FlattenDefault(), UnflattenStrict(), constraint, x)
 
 construct_flatten(df::F, x) where {F<:FlattenDefault} = construct_flatten(df.output, df.flattentype, UnflattenStrict(), x)
-construct_flatten(df::F, constrained, x) where {F<:FlattenDefault} = construct_flatten(df.output, df.flattentype, UnflattenStrict(), constrained, x)
+construct_flatten(df::F, constraint, x) where {F<:FlattenDefault} = construct_flatten(df.output, df.flattentype, UnflattenStrict(), constraint, x)
 construct_flatten(df::F, unflattentype::U, x) where {F<:FlattenDefault, U<:UnflattenTypes} = construct_flatten(df.output, df.flattentype, unflattentype, x)
 construct_flatten(df::F, unflattentype::U, constraint, x) where {F<:FlattenDefault, U<:UnflattenTypes} = construct_flatten(df.output, df.flattentype, unflattentype, constraint, x)
 
@@ -210,47 +174,13 @@ function unflattenAD(constructor::ReConstructor, x)
     return constructor.unflatten.flexible(x)
 end
 
-
-############################################################################################
-"""
-    $(FUNCTIONNAME)(x )
-Contains information to constrain and unconstrain parameter.
-
-# Examples
-```julia
-```
-"""
-struct TransformConstructor{S, T}
-    constrain::S
-    unconstrain::T
-    function TransformConstructor(constraint, x)
-        #!NOTE: Transform is used to unconstrain, and inverse-transform to constrain parameter back.
-        transform, inverse_transform = construct_transform(constraint, x)
-        return new{typeof(inverse_transform), typeof(transform)}(inverse_transform, transform)
-    end
-end
-
-function constrain(transform::T, val) where {T<:TransformConstructor}
-    return constrain(transform.constrain, val)
-end
-function unconstrain(transform::T, val) where {T<:TransformConstructor}
-    return unconstrain(transform.unconstrain, val)
-end
-
 ############################################################################################
 # Export
-export FlattenTypes,
-    FlattenAll,
-    FlattenContinuous,
-    UnflattenTypes,
-    UnflattenStrict,
-    UnflattenFlexible,
-    FlattenDefault,
+export FlattenDefault,
     FlattenConstructor,
     UnflattenConstructor,
     ReConstructor,
     flatten,
     flattenAD,
     unflatten,
-    unflattenAD,
-    TransformConstructor
+    unflattenAD

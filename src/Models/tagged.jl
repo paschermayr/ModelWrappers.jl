@@ -25,9 +25,9 @@ struct Tagged{A<:NamedTuple,B<:ParameterInfo}
         sym = Tuple_to_Namedtuple(sym, true)
         ## Generate new ParameterInfo based on sym subset
         info = ParameterInfo(
-            subset(model.info.constraint, sym),
-            subset(model.val, sym),
             model.info.reconstruct.default,
+            subset(model.info.transform.constraint, sym),
+            subset(model.val, sym),
         )
         ## Return Tagged
         return new{typeof(sym),typeof(info)}(sym, info)
@@ -41,7 +41,7 @@ paramnames(tagged::Tagged) = keys(tagged.parameter)
 
 #A convenient method for evaluating a prior distribution of a NamedTuple parameter
 function log_prior(tagged::Tagged, θ::NamedTuple)
-    return log_prior(tagged.info.constraint, subset(θ, tagged.parameter))
+    return log_prior(tagged.info.transform.constraint, subset(θ, tagged.parameter))
 end
 
 ############################################################################################
@@ -64,20 +64,20 @@ end
 
 #########################################
 function unconstrain(model::ModelWrapper, tagged::Tagged)
-    return unconstrain(tagged.info.transform, subset(model, tagged))
+    return unconstrain(tagged.info, subset(model, tagged))
 end
 function flatten(model::ModelWrapper, tagged::Tagged)
-    return flatten(tagged.info.reconstruct, subset(model, tagged))
+    return flatten(tagged.info, subset(model, tagged))
 end
 function unconstrain_flatten(model::ModelWrapper, tagged::Tagged)
-    return flatten(tagged.info.reconstruct, unconstrain(model, tagged))
+    return flatten(tagged.info, unconstrain(model, tagged))
 end
 
 #########################################
 function unflatten(
     model::ModelWrapper, tagged::Tagged, θ::AbstractVector{T}
 ) where {T<:Real}
-    return unflatten(tagged.info.reconstruct, θ)
+    return unflatten(tagged.info, θ)
 end
 function unflatten!(
     model::ModelWrapper, tagged::Tagged, θ::AbstractVector{T}
@@ -88,7 +88,7 @@ end
 function unflatten_constrain(
     model::ModelWrapper, tagged::Tagged, θᵤ::AbstractVector{T}
 ) where {T<:Real}
-    return constrain(tagged.info.transform, unflatten(model, tagged, θᵤ))
+    return constrain(tagged.info, unflatten(model, tagged, θᵤ))
 end
 function unflatten_constrain!(
     model::ModelWrapper, tagged::Tagged, θᵤ::AbstractVector{T}
@@ -99,13 +99,11 @@ end
 
 #########################################
 function sample(_rng::Random.AbstractRNG, model::ModelWrapper, tagged::Tagged)
-    return merge(model.val, sample_constraint(_rng, tagged.info.constraint, subset(model, tagged)))
+    return merge(model.val, sample_constraint(_rng, tagged.info.transform.constraint, subset(model, tagged)))
 end
 sample(model::ModelWrapper, tagged::Tagged) = sample(Random.GLOBAL_RNG, model, tagged)
 
 function sample!(_rng::Random.AbstractRNG, model::ModelWrapper, tagged::Tagged)
-    #!NOTE: Check no longer needed, as Fixed Tags just return current value
-#    ArgCheck.@argcheck _checkprior(subset(tagged.info.constraint, tagged.parameter)) "For inplace sample version, all constraints need to be a Distribution."
     model.val = sample(_rng, model, tagged)
     return nothing
 end
@@ -113,13 +111,13 @@ sample!(model::ModelWrapper, tagged::Tagged) = sample!(Random.GLOBAL_RNG, model,
 
 #########################################
 function log_prior(model::ModelWrapper, tagged::Tagged)
-    return log_prior(tagged.info.constraint, subset(model, tagged))
+    return log_prior(tagged.info.transform.constraint, subset(model, tagged))
 end
 function log_prior_with_transform(model::ModelWrapper, tagged::Tagged)
-    return log_prior_with_transform(tagged.info.constraint, subset(model, tagged))
+    return log_prior_with_transform(tagged.info.transform.constraint, subset(model, tagged))
 end
 function log_abs_det_jac(model::ModelWrapper, tagged::Tagged)
-    return log_abs_det_jac(tagged.info.transform.unconstrain, subset(model, tagged))
+    return log_abs_det_jac(tagged.info, subset(model, tagged))
 end
 
 #########################################

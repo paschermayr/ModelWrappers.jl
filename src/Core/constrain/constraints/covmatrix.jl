@@ -1,4 +1,5 @@
 ############################################################################################
+# 1. Create a new Constraint, MyConstraint <: AbstractConstraint.
 """
 $(TYPEDEF)
 
@@ -7,19 +8,47 @@ Utility struct to help assign boundaries to parameter.
 # Fields
 $(TYPEDFIELDS)
 """
-struct CovarianceMatrix <: AbstractConstraint
+struct CovarianceMatrix{B<:Bijection} <: AbstractConstraint
+    bijection::B
     function CovarianceMatrix()
-        return new()
+        b = Bijection(Bijectors.PDBijector())
+        return new{typeof(b)}(b)
     end
 end
 
 ############################################################################################
-function construct_transform(constraint::CovarianceMatrix, val)
-    transform = Bijectors.PDBijector()
-    return transform, Bijectors.inverse(transform)
+#=
+2. Define functions to unconstrain(constraint, val) to unconstrained domain valᵤ, and a function constrain(constraint, valᵤ) back to val.
+Dimensions of val and valᵤ should be the same, flattening will be handled separately.
+=#
+function unconstrain(constraint::CovarianceMatrix, val)
+    return unconstrain(constraint.bijection, val)
+end
+function constrain(constraint::CovarianceMatrix, valᵤ)
+    return constrain(constraint.bijection, valᵤ)
 end
 
 ############################################################################################
+# 3. Optional - Check if check_transformer(constraint, val) works
+#=
+b = Bijectors.PDBijector()
+constraint = CovarianceMatrix()
+val = [4. .8 ; .8 3.]
+val_u = Bijectors.transform(b, val)
+val_o = Bijectors.transform(inverse(b), val_u)
+val_u = unconstrain(constraint, val)
+val_o = constrain(constraint, val_u)
+check_constraint(constraint, val)
+=#
+
+############################################################################################
+# 4. If Objective is used, include a method that computes logabsdet from transformation to unconstrained domain. Same syntax as in Bijectors.jl package is used, i.e., -log_abs_det_jac is returned for computations.
+function log_abs_det_jac(constraint::CovarianceMatrix, θ::T) where {T}
+    return log_abs_det_jac(constraint.bijection, θ)
+end
+
+############################################################################################
+# 5. Add _check function to check for all other peculiar things that should be tested if new releases come out and add to Test section.
 function _check(
     _rng::Random.AbstractRNG,
     constraint::CovarianceMatrix,
@@ -30,6 +59,7 @@ function _check(
 end
 
 ############################################################################################
+# 6. Optionally - choose to only flatten upper non-diagonal parameter if Correlationmatrix is constraint
 #!TODO: Works with flatten/unflatten - but constraint/unconstraint seems to deduce wrong type for ReverseDiff from Bijector - works fine with ForwardDiff/Zygote
 #!NOTE: Bijectors map to lower triangular matrix while most AD libraries evaluate upper triangular matrices.
 function construct_flatten(
@@ -42,7 +72,7 @@ function construct_flatten(
     T<:AbstractFloat,
     F<:FlattenTypes,
     R<:Real,
-    C<:Union{CovarianceMatrix, Distributions.InverseWishart, Bijectors.PDBijector}
+    C<:Union{CovarianceMatrix, DistributionConstraint{<:Distributions.InverseWishart}, Distributions.InverseWishart, Bijectors.PDBijector}
 }
     #!NOTE: PDBijector seems to unconstrain to a Lower Diagonal Matrix
     idx_upper = tag(x, false, true)
@@ -69,7 +99,7 @@ function construct_flatten(
     T<:AbstractFloat,
     F<:FlattenTypes,
     R<:Real,
-    C<:Union{CovarianceMatrix, Distributions.InverseWishart, Bijectors.PDBijector}
+    C<:Union{CovarianceMatrix, DistributionConstraint{<:Distributions.InverseWishart}, Distributions.InverseWishart, Bijectors.PDBijector}
 }
     #!NOTE: PDBijector seems to unconstrain to a Lower Diagonal Matrix
     idx_upper = tag(x, false, true)
@@ -89,20 +119,10 @@ function construct_flatten(
 end
 
 ############################################################################################
-#=
-!NOTE: For this constraint, we use a Bijector as Transformer, so we do not need to add a new functors
-1. MyTransformer <: AbstractTransformer, MyInverseTransformer <: AbstractTransformer
-2. define a function construct_transform(MyConstraint, val) -> MyTransformer, MyInverseTransformer
-3. overload unconstrain and log_abs_det_jac on MyTransformer.
-4. overload constrain on MyInverseTransformer.
-=#
-
-############################################################################################
 #Export
 export
     CovarianceMatrix,
     construct_flatten,
-    construct_transform,
     constrain,
     unconstrain,
     log_abs_det_jac
