@@ -124,11 +124,11 @@ end
 function (objective::Objective)(θᵤ::AbstractVector{T}, arg::A = objective.model.arg, data::D = objective.data) where {T<:Real, A, D}
     @unpack model, tagged, temperature = objective
     ## Convert vector θᵤ back to constrained space as NamedTuple
-    θ = constrain(tagged.info.transform, unflattenAD(tagged.info.reconstruct, θᵤ))
+    θ = constrain(tagged.info, unflattenAD(tagged.info, θᵤ))
     #!NOTE: There are border cases where θᵤ is still finite, but θ no longer after transformation, so have to cover this separately
     _checkfinite(θ) || return -Inf
     ## logabsdet_jac for transformations
-    ℓjac = log_abs_det_jac(tagged.info.transform, θ)
+    ℓjac = log_abs_det_jac(tagged.info, θ)
     _checkfinite(ℓjac) || return -Inf
     ## Evaluate objective
     ℓℒ = objective(merge(model.val, θ), arg, data)
