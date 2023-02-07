@@ -68,10 +68,8 @@ Functor to call target function for Model given parameter and data.
 ```
 
 """
-function (objective::Objective)(θ)
-    return println("No method yet implemented for model ", objective.model.id,
-        ", dispatch on function (objective::Objective{<:ModelWrapper{BaseModel}})(θ::NamedTuple)"
-    )
+function (objective::Objective)(θ::NamedTuple)
+    return 0.0
 end
 
 """

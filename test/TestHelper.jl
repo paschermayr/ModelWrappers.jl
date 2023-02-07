@@ -241,6 +241,8 @@ _val_examplemodel = (
 #_val_examplemodel_length = 23
 
 ################################################################################
+# Test Gradients of Model with custom function
+
 # Parameter that may work in lower dimensions
 struct LowerDims <: ModelName end
 _val_lowerdims = (;
