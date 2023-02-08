@@ -50,6 +50,9 @@ function ParameterInfo(
 end
 
 ############################################################################################
+length(info::ParameterInfo) = info.reconstruct.unflatten.strict._unflatten.sz[end]
+
+############################################################################################
 function constrain(info::ParameterInfo, valᵤ::V) where {V}
     return constrain(info.transform, valᵤ)
 end

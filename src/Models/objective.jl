@@ -55,7 +55,7 @@ Functor to call target function for Model given parameter and data. Default meth
 ```
 
 """
-function (objective::Objective)(θ::NamedTuple, arg = objective.model.arg, data = objective.data)
+function (objective::Objective)(θ::NamedTuple, arg, data)
     return objective(θ)
 end
 
@@ -69,7 +69,7 @@ Functor to call target function for Model given parameter and data.
 
 """
 function (objective::Objective)(θ::NamedTuple)
-    return 0.0
+    return zero(objective.model.info.reconstruct.default.output)
 end
 
 """
@@ -122,6 +122,7 @@ end
 function (objective::Objective)(θᵤ::AbstractVector{T}, arg::A = objective.model.arg, data::D = objective.data) where {T<:Real, A, D}
     @unpack model, tagged, temperature = objective
     ## Convert vector θᵤ back to constrained space as NamedTuple
+    #!NOTE: This allocates new NamedTuple only once - using a constrain!(buffer, ...) does not improve performance wrt allocations
     θ = constrain(tagged.info, unflattenAD(tagged.info, θᵤ))
     #!NOTE: There are border cases where θᵤ is still finite, but θ no longer after transformation, so have to cover this separately
     _checkfinite(θ) || return -Inf
