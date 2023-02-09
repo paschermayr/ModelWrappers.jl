@@ -75,33 +75,35 @@ Consider now the following problem: you have a model that consists of various (u
 If a corresponding prior distribution is provided, ModelWrappers.jl allows you to efficiently constrain and unconstrain your parameter tuple. To do so, one can initiate a `Param` struct, which is a temporary constructor that checks if the package can handle the (value, constraint) combination. The initial `NamedTuple` can then be wrapped in a `ModelWrapper` struct.
 ```julia
 using Distributions
-myparameter4 = (μ = Param(0.0, Normal()), σ = Param(1.0, Gamma()))
+myparameter4 = (μ = Param(Normal(), 0.0,), σ = Param(Gamma(), 1.0, ))
 mymodel = ModelWrapper(myparameter4)
 ```
 
-Note that providing a prior distribution in `Param` will just assign a bijector to the parameter, so instead of providing a prior distribution, one may provide a Bijector directly. The code below constructs the same model as above:
-```julia
-using Bijectors
-myparameter_bij = (μ = Param(0.0, Identity{0}()), σ = Param(1.0, Bijectors.Log{0}()))
-mymodel_bij = ModelWrapper(myparameter_bij)
-```
-
-Valid constraint options for a `Param` struct at the moment include
+Note that providing a distribution from 'Distributions.jl' in `Param` will just assign a bijector from 'Bijectors.jl' to the parameter. Other valid constraint options for a `Param` struct at the moment include
 1. a bijector from [Bijectors.jl](https://github.com/TuringLang/Bijectors.jl),
 2. all distributions that work with [Bijectors.jl](https://github.com/TuringLang/Bijectors.jl),
 3. a `Fixed` struct, which keeps `val` fixed and excludes it from flatten/unflatten,
 4. an `Unconstrained` struct, which flattens `val` without taking into account any constraint,
 5. and a `Constrained` struct, which flattens `val` without taking into account any constraint, but will take into account the constraints when constraining values.
+6. some constraint that may be able to map `val` into a lower dimension. This includes a Simplex, CovarianceMatrix and CorrelationMatrix constraint.
 ```julia
+
+using Bijectors
 myparameter_constraints = (
-    μ = Param(0.0, Normal()),
-    σ = Param(1.0, Bijectors.Log{0}()),
-    buffer1 = Param(zeros(Int64, 2,3,4), Fixed()),
-    buffer2 = Param([zeros(10), zeros(20)], Unconstrained()),
-    buffer3 = Param(3., Constrained(1., 5.))
+    μ = Param(Normal(), 0.0,),
+    σ = Param(Bijection(bijector(Gamma(2,2))), 1.0,),
+
+    buffer1 = Param(Fixed(), zeros(Int64, 2,3,4), ),
+    buffer2 = Param(Unconstrained(), [zeros(10), zeros(20)], ),
+    buffer3 = Param(Constrained(1., 5.), 3., ),
+
+    #Mapped to lower dimensions
+    p = Param(Simplex(3), [.2, .3, .5]),
+    ρ = Param(CorrelationMatrix(), [1. .3 ; .3 1.]),
+    Σ = Param(CovarianceMatrix(), [5. .4 ; .4 6.]),
 )
 model_constraints = ModelWrapper(myparameter_constraints)
-flatten(model_constraints) #Vector{Float64} with 33 elements
+flatten(model_constraints) #Vector{Float64} with 39 elements
 ```
 
 A `ModelWrapper` struct is mutable, and contains the values of your `NamedTuple` field. Values can be flattened or unconstrained, and may be updated by new values/samples. Also, when a `ModelWrapper` struct is created, an unflatten function for strict and variable type conversion is stored. To show this, we will a create `ModelWrapper` struct, flatten its values, and update the struct with new values:
@@ -109,7 +111,7 @@ A `ModelWrapper` struct is mutable, and contains the values of your `NamedTuple`
 ```julia
 using Distributions, Random
 _rng = MersenneTwister(2)
-myparameter4 = (μ = Param(0.0, Normal()), σ = Param(1.0, Gamma()))
+myparameter4 = (μ = Param(Normal(), 0.0, ), σ = Param(Gamma(), 1.0, ))
 mymodel = ModelWrapper(myparameter4)
 #Flatten/Unconstrain Model parameter
 vals_vec = flatten(mymodel) #Vector{Float64} with 2 elements
@@ -135,7 +137,7 @@ Let us work with the model from before. We first sample data, create the objecti
 ```julia
 using UnPack
 #Create Model and data
-myparameter4 = (μ = Param(0.0, Normal()), σ = Param(1.0, Gamma()))
+myparameter4 = (μ = Param(Normal(), 0.0, ), σ = Param(Gamma(), 1.0, ))
 mymodel = ModelWrapper(myparameter4)
 data = randn(1000)
 
@@ -198,7 +200,7 @@ all(grad_fwd .≈ grad_rvd .≈ grad_zyg[1] .≈ grad_fwd_soss .≈ grad_rvd_sos
 -->
 ## Going Forward
 
-This package is still highly experimental - suggestions and comments are always welcome!
+This package is still highly experimental - suggestions and comments are always welcome! New constraints should be reasonable simple to add, check out 'src/Core/constrain/constraints/constrained.jl' as an example with guidance in the comments.
 
 <!---
 # Citing Baytes.jl

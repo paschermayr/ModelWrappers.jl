@@ -22,16 +22,12 @@ using UnPack: UnPack, @unpack, @pack!
 using Random: Random, AbstractRNG, GLOBAL_RNG
 
 #!NOTE: These libraries are relevant for transform part
+using ChainRulesCore
 using LinearAlgebra: LinearAlgebra, Diagonal, LowerTriangular, tril!, diag, issymmetric
 using Distributions: Distributions, Distribution, logpdf
 using Bijectors:
-    Bijectors, Bijector, logpdf_with_trans,
+    Bijectors, Bijector, logpdf_with_trans, transform,
     TruncatedBijector, SimplexBijector, CorrBijector, PDBijector
-
-using ChainRulesCore
-#!NOTE: These libraries are only relevant for 'Differentiation' files - open to make separate library later on but for now easier to test changes with AD libraries included in a single library.
-#using ChainRulesCore, DistributionsAD, DiffResults
-#using ForwardDiff, ReverseDiff, Zygote
 
 ############################################################################################
 # A bunch of constants used throughout the package
