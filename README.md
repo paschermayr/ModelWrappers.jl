@@ -85,7 +85,7 @@ Note that providing a distribution from 'Distributions.jl' in `Param` will just 
 3. a `Fixed` struct, which keeps `val` fixed and excludes it from flatten/unflatten,
 4. an `Unconstrained` struct, which flattens `val` without taking into account any constraint,
 5. and a `Constrained` struct, which flattens `val` without taking into account any constraint, but will take into account the constraints when constraining values.
-6. some constraint that may be able to map `val` into a lower dimension. This includes a 'Simplex', 'CovarianceMatrix' and 'CorrelationMatrix' constraint.
+6. some constraint that may be able to map `val` into a lower dimension. This includes a `Simplex`, `CovarianceMatrix` and `CorrelationMatrix` constraint.
 ```julia
 
 using Bijectors
@@ -200,7 +200,7 @@ all(grad_fwd .≈ grad_rvd .≈ grad_zyg[1] .≈ grad_fwd_soss .≈ grad_rvd_sos
 -->
 ## Going Forward
 
-This package is still highly experimental - suggestions and comments are always welcome! New constraints should be reasonable simple to add, check out 'src/Core/constrain/constraints/constrained.jl' as an example with guidance in the comments.
+This package is still highly experimental - suggestions and comments are always welcome! New constraints should be reasonable simple to add, check out `src/Core/constrain/constraints/constrained.jl` as an example with guidance in the comments.
 
 <!---
 # Citing Baytes.jl
