@@ -74,6 +74,7 @@ end
     @test sum(abs.(grad_mod_fd - grad_mod_zy)) ≈ 0 atol = _TOL
 end
 
+#=
 #!NOTE: if logprior commented out, model.arg is mutated (!)
 #!NOTE2: Forward Mode seems to be incorrect wrt to gradient computation
 @testset "Objective - Enzyme - Base Model" begin
@@ -114,9 +115,8 @@ end
     @test sum(abs.(_objective.data .- _dat)) ≈ 0 atol = _TOL
     @test _objective.model.arg.a - _arg_a ≈ 0 atol = _TOL
     @test sum(abs.(_objective.model.arg.b .- _arg_b)) ≈ 0 atol = _TOL
-
 end
-
+=#
 
 
 

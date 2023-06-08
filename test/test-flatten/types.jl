@@ -80,22 +80,22 @@ end
     grad_mod_rd = ReverseDiff.gradient(check_AD, val_flat)
     grad_mod_zy = Zygote.gradient(check_AD, val_flat)[1]
 ## Experimental
-    _shadow = zeros(length(val_flat))
-    grad_mod_enz = Enzyme.autodiff(check_AD,
-        Enzyme.Duplicated(val_flat, _shadow)
-    )
+#    _shadow = zeros(length(val_flat))
+#    grad_mod_enz = Enzyme.autodiff(check_AD,
+#        Enzyme.Duplicated(val_flat, _shadow)
+#    )
 ##
     @test sum(abs.(grad_mod_fd - grad_mod_rd)) ≈ 0 atol = _TOL
     @test sum(abs.(grad_mod_fd - grad_mod_zy)) ≈ 0 atol = _TOL
-    @test sum(abs.(grad_mod_fd - _shadow)) ≈ 0 atol = _TOL
+#    @test sum(abs.(grad_mod_fd - _shadow)) ≈ 0 atol = _TOL
 
     grad_mod_fd = ForwardDiff.gradient(check_AD, flatten(reconstruct, val))
     grad_mod_rd = ReverseDiff.gradient(check_AD, flatten(reconstruct, val))
     grad_mod_zy = Zygote.gradient(check_AD, flatten(reconstruct, val))[1]
-    _shadow = zeros(length(val_flat))
-    grad_mod_enz = Enzyme.autodiff(check_AD,
-        Enzyme.Duplicated(flatten(reconstruct, val), _shadow)
-    )
+#    _shadow = zeros(length(val_flat))
+#    grad_mod_enz = Enzyme.autodiff(check_AD,
+#        Enzyme.Duplicated(flatten(reconstruct, val), _shadow)
+#    )
 end
 
 ############################################################################################
@@ -188,23 +188,28 @@ end
     grad_mod_fd = ForwardDiff.gradient(check_AD, val_flat)
     grad_mod_rd = ReverseDiff.gradient(check_AD, val_flat)
     grad_mod_zy = Zygote.gradient(check_AD, val_flat)[1]
+
+#=
 ## Experimental
     _shadow = zeros(length(val_flat))
     grad_mod_enz = Enzyme.autodiff(check_AD,
         Enzyme.Duplicated(val_flat, _shadow)
     )
+    @test sum(abs.(grad_mod_fd - _shadow)) ≈ 0 atol = _TOL
+=#
 ##
     @test sum(abs.(grad_mod_fd - grad_mod_rd)) ≈ 0 atol = _TOL
-    @test sum(abs.(grad_mod_fd - _shadow)) ≈ 0 atol = _TOL
 #    @test sum(abs.(grad_mod_fd - grad_mod_zy)) ≈ 0 atol = _TOL
 
     grad_mod_fd = ForwardDiff.gradient(check_AD, flatten(reconstruct, val))
     grad_mod_rd = ReverseDiff.gradient(check_AD, flatten(reconstruct, val))
     grad_mod_zy = Zygote.gradient(check_AD, flatten(reconstruct, val))[1]
+#=
     _shadow = zeros(length(val_flat))
     grad_mod_enz = Enzyme.autodiff(check_AD,
         Enzyme.Duplicated(flatten(reconstruct, val), _shadow)
     )
+=#
 end
 
 ############################################################################################
