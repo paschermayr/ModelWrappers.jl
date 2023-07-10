@@ -73,14 +73,30 @@ end
 @testset "Nested - AbstractArray - Automatic Differentiation" begin
     val = [1., [2., 3.], [4. 5. ; 6. 7.], 8., [9., 10.]]
     constraint = [DistributionConstraint(Normal()), DistributionConstraint(MvNormal([1., 1.])), Fixed(), DistributionConstraint(Gamma()), Unconstrained()]
-    reconstruct = ReConstructor(constraint, val)
-    val_flat = flatten(reconstruct, val)
+
+    reconstruct = ReConstructor(FlattenDefault(), constraint, val)
+    transform = TransformConstructor(constraint, val)
+    info = ParameterInfo(FlattenDefault(), reconstruct, transform, val)
+
+    val_flat = flatten(info, val)
+    val_unflat = unflatten(info, val_flat)
+    @test val_unflat == val
+
+    val_unconstrained = unconstrain(info, val)
+    val_constrained = constrain(info, val_unconstrained)
+    @test val_constrained ≈ val
+
+    val_flat_unconstrained = unconstrain_flatten(info, val)
+    val_unflat_constrained = unflatten_constrain(info, val_flat_unconstrained)
+    @test val_unflat_constrained ≈ val
 
     check_AD = check_AD_closure(constraint, val)
-    check_AD(val_flat)
-    grad_mod_fd = ForwardDiff.gradient(check_AD, val_flat)
-    grad_mod_rd = ReverseDiff.gradient(check_AD, val_flat)
-    grad_mod_zy = Zygote.gradient(check_AD, val_flat)[1]
+    check_AD(val_flat_unconstrained)
+
+    grad_mod_fd = ForwardDiff.gradient(check_AD, val_flat_unconstrained)    
+    grad_mod_rd = ReverseDiff.gradient(check_AD, val_flat_unconstrained)
+    grad_mod_zy = Zygote.gradient(check_AD, val_flat_unconstrained)[1]
+
 #=
 ## Experimental
     _shadow = zeros(length(val_flat))
@@ -92,9 +108,6 @@ end
     @test sum(abs.(grad_mod_fd - grad_mod_rd)) ≈ 0 atol = _TOL
     @test sum(abs.(grad_mod_fd - grad_mod_zy)) ≈ 0 atol = _TOL
 
-    grad_mod_fd = ForwardDiff.gradient(check_AD, flatten(reconstruct, val))
-    grad_mod_rd = ReverseDiff.gradient(check_AD, flatten(reconstruct, val))
-    grad_mod_zy = Zygote.gradient(check_AD, flatten(reconstruct, val))[1]
 #=
     _shadow = zeros(length(val_flat))
     grad_mod_enz = Enzyme.autodiff(check_AD,

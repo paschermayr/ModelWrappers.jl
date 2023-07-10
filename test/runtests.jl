@@ -5,7 +5,7 @@ using Random: Random, AbstractRNG, seed!
 
 #using Soss
 using LinearAlgebra
-using Distributions, Bijectors, DistributionsAD
+using Distributions, Bijectors#, DistributionsAD
 using ForwardDiff, ReverseDiff, Zygote, Enzyme
 using ArgCheck
 
@@ -46,7 +46,7 @@ import ModelWrappers: simulate
 
 ############################################################################################
 # Include Files
-include("TestHelper.jl")
+include("TestHelper.jl");
 
 ############################################################################################
 # Run Tests

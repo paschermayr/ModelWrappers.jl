@@ -114,15 +114,6 @@ function ReConstructor(constraint, x)
 end
 
 ############################################################################################
-"""
-    $(FUNCTIONNAME)(x )
-Convert 'x' into a Vector.
-
-# Examples
-```julia
-```
-"""
-function flatten end
 function flatten(constructor::ReConstructor, x)
     return constructor.flatten.strict(x)
 end
@@ -131,15 +122,6 @@ function flatten(x)
     return flatten(constructor, x), constructor
 end
 
-"""
-    $(FUNCTIONNAME)(x )
-Convert 'x' into a Vector that is AD compatible.
-
-# Examples
-```julia
-```
-"""
-function flattenAD end
 function flattenAD(constructor::ReConstructor, x)
     return constructor.flatten.flexible(x)
 end
@@ -148,28 +130,9 @@ function flattenAD(x)
     return flattenAD(constructor, x), constructor
 end
 
-"""
-    $(FUNCTIONNAME)(x )
-Unflatten 'x' into original shape.
-
-# Examples
-```julia
-```
-"""
-function unflatten end
 function unflatten(constructor::ReConstructor, x)
     return constructor.unflatten.strict(x)
 end
-
-"""
-    $(FUNCTIONNAME)(x )
-Unflatten 'x' into original shape but keep type information of 'x' for AD compatibility.
-
-# Examples
-```julia
-```
-"""
-function unflattenAD end
 function unflattenAD(constructor::ReConstructor, x)
     return constructor.unflatten.flexible(x)
 end

@@ -145,7 +145,7 @@ val_dist = (
         ],
         [[i / 10 for i in Base.OneTo(3)] for _ in Base.OneTo(4)],
     ),
-)
+);
 #val_dist_length = 58
 
 ############################################################################################
@@ -162,7 +162,7 @@ val_dist_nested = (;
         e=val_dist.d_a2,
         f=val_dist.d_e2,
     ),
-)
+);
 
 ############################################################################################
 # Non-Probabilistic Parameter (Experimental!):
@@ -210,7 +210,7 @@ val_constrained = (
     ## Constrained Parameter -> Scalar only
     con_a1=Param(Constrained(0.0, 2.0), 1.0, ),
     con_b1=Param(Constrained(Float32(20.0), Float32(30.0)), Float32(26.0), ),
-)
+);
 
 ################################################################################
 # Parameter for an example Model
@@ -237,7 +237,7 @@ _val_examplemodel = (
     σ4=Param([[_σ, _σ], [_σ, _σ]], [[5.0, 5.0], [5.0, 5.0]]),
     ρ4=Param([Distributions.LKJ(2, 1.0), Distributions.LKJ(2, 1.0)], [copy(_ρ), copy(_ρ)], ),
     p=Param(Distributions.Dirichlet(3, 3.0), [0.2, 0.3, 0.5],),
-)
+);
 #_val_examplemodel_length = 23
 
 ################################################################################
@@ -278,5 +278,5 @@ _val_lowerdims = (;
     #        ldim_j1 = Param([15. .16 ; .16 18.], _iwish2),
     #        ldim_j2 = Param([[19. .20 ; .20 22.], [23. .24 ; .24 26.]],[_iwish2, _iwish2]),
     #        ldim_j3 = Param([15. .16 .16 ; .16 18. .16 ; .16 .16 20.], _iwish3),
-    #        ldim_j4 = Param([[15. .16 .16 ; .16 18. .16 ; .16 .16 20.], [15. .16 .16 ; .16 18. .16 ; .16 .16 20.]],[_iwish3, _iwish3]),
-)
+    #        ldim_j4 = Param([[15. .16 .16; ; .16 18. .16 ; .16 .16 20.], [15. .16 .16 ; .16 18. .16 ; .16 .16 20.]],[_iwish3, _iwish3]),
+);

@@ -3,17 +3,22 @@
 _modelProb = ModelWrapper(ProbModel(), val_dist)
 @testset "Models - basic functionality" begin
     ## Type Check 1 - Constrain/Unconstrain
-    theta_unconstrained_vec = randn(length(_modelProb))
-    theta_unconstrained = unflatten(_modelProb, theta_unconstrained_vec)
-    @test typeof(theta_unconstrained) == typeof(_modelProb.val)
-    theta_constrained = constrain(_modelProb.info.transform, theta_unconstrained)
-    theta_constrained2 = unflatten_constrain(_modelProb, theta_unconstrained_vec)
-    @test typeof(theta_constrained) == typeof(_modelProb.val)
-    @test typeof(theta_constrained2) == typeof(_modelProb.val)
-    ## Type Check 2 - Flatten/Unflatten
-    _θ1, _ = flatten(_modelProb.info.reconstruct, theta_constrained)
-    _θ2, _ = flatten(_modelProb.info.reconstruct, theta_constrained2)
-    @test sum(abs.(_θ1 - _θ2)) ≈ 0 atol = _TOL
+    length_constrained(_modelProb)
+    length_unconstrained(_modelProb)
+    theta_unconstrained_vec = randn(length_unconstrained(_modelProb))
+    
+    
+    val_flat = flatten(_modelProb)
+    val_unflat = unflatten(_modelProb, val_flat)
+    @test length(val_unflat) == length(_modelProb.val)
+
+    val_unconstrained = unconstrain(_modelProb)
+    val_constrained = constrain(_modelProb, val_unconstrained)
+
+    val_flat_unconstrained = unconstrain_flatten(_modelProb)
+    val_unflat_constrained = unflatten_constrain(_modelProb, val_flat_unconstrained)
+    @test length(val_unflat_constrained) == length(_modelProb.val)
+
     ## Check if densities match
     @test log_prior(_modelProb) + log_abs_det_jac(_modelProb) ≈
           log_prior_with_transform(_modelProb)
@@ -39,29 +44,67 @@ _modelExample = ModelWrapper(ExampleModel(), _val_examplemodel)
 _tagged = Tagged(_modelExample)
 @testset "Models - Model with transforms in lower dimensions" begin
     ## Model Length accounting discrete parameter
-    unconstrain(_modelExample)
-    flatten(_modelExample)
-    unconstrain_flatten(_modelExample)
-    ## Type Check 1 - Constrain/Unconstrain
-    theta_unconstrained_vec = randn(length(_modelExample))
-    theta_unconstrained = unflatten(_modelExample, theta_unconstrained_vec)
-    @test typeof(theta_unconstrained) == typeof(_modelExample.val)
-    theta_constrained = constrain(_modelExample.info.transform, theta_unconstrained)
-    theta_constrained2 = unflatten_constrain(_modelExample, theta_unconstrained_vec)
-    @test typeof(theta_constrained) == typeof(_modelExample.val)
-    @test typeof(theta_constrained2) == typeof(_modelExample.val)
-    ## Type Check 2 - Flatten/Unflatten
-    _θ1, _ = flatten(_modelExample.info.reconstruct, theta_constrained)
-    _θ2, _ = flatten(_modelExample.info.reconstruct, theta_constrained2)
-    @test sum(abs.(_θ1 - _θ2)) ≈ 0 atol = _TOL
+    length_constrained(_modelExample)
+    length_unconstrained(_modelExample)
+    theta_unconstrained_vec = randn(length_unconstrained(_modelExample))
+    
+    
+    val_flat = flatten(_modelExample)
+    val_unflat = unflatten(_modelExample, val_flat)
+    @test length(val_unflat) == length(_modelExample.val)
+
+    val_unconstrained = unconstrain(_modelExample)
+    val_constrained = constrain(_modelExample.info, val_unconstrained)
+
+    val_flat_unconstrained = unconstrain_flatten(_modelExample)
+    val_unflat_constrained = unflatten_constrain(_modelExample, val_flat_unconstrained)
+    @test length(val_unflat_constrained) == length(_modelExample.val)
+
+    
     ## Check if densities match
     @test log_prior(_modelExample) + log_abs_det_jac(_modelExample) ≈
           log_prior_with_transform(_modelExample)
     ## Check utility functions
-    @test length(_modelExample) == 23
+    @test length_unconstrained(_modelExample) == 23
     @test ModelWrappers.paramnames(_modelExample) == keys(_val_examplemodel)
     fill(_modelExample, _tagged, _modelExample.val)
     fill!(_modelExample, _tagged, _modelExample.val)
 end
 
 ############################################################################################
+struct NonBijectModel <: ModelName end
+val_nonbjiject = (
+    a=Param(LKJ(3,1), rand(LKJ(3,1))),
+    b=Param(LKJCholesky(3,1), rand(LKJCholesky(3,1))), 
+    c=Param(InverseWishart(10, [3. .1 ; .1 2.]), rand(InverseWishart(10, [3. .1 ; .1 2.]))),
+    d=Param(Dirichlet(3,3), [.1, .2, .7]), 
+)
+_modelExample = ModelWrapper(NonBijectModel(), val_nonbjiject)
+_tagged = Tagged(_modelExample)
+@testset "Models - Model with transforms in lower dimensions" begin
+    ## Model Length accounting discrete parameter
+    length_constrained(_modelExample)
+    length_unconstrained(_modelExample)
+    theta_unconstrained_vec = randn(length_unconstrained(_modelExample))
+    
+    val_flat = flatten(_modelExample)
+    val_unflat = unflatten(_modelExample, val_flat)
+    @test length(val_unflat) == length(_modelExample.val)
+
+    val_unconstrained = unconstrain(_modelExample)
+    val_constrained = constrain(_modelExample, val_unconstrained)
+
+    val_flat_unconstrained = unconstrain_flatten(_modelExample)
+    val_unflat_constrained = unflatten_constrain(_modelExample, val_flat_unconstrained)
+    @test length(val_unflat_constrained) == length(_modelExample.val)
+
+    
+    ## Check if densities match
+    @test log_prior(_modelExample) + log_abs_det_jac(_modelExample) ≈
+          log_prior_with_transform(_modelExample)
+    ## Check utility functions
+    @test length_constrained(_modelExample) == 25
+    @test length_unconstrained(_modelExample) == 11
+    fill(_modelExample, _tagged, _modelExample.val)
+    fill!(_modelExample, _tagged, _modelExample.val)
+end

@@ -2,7 +2,7 @@ module ModelWrappers
 
 ############################################################################################
 #Import External packages
-import Base: Base, length, fill, fill!, print
+import Base: Base, length, vec, fill, fill!, print, isapprox
 import StatsBase: StatsBase, sample, sample!
 import BaytesCore: BaytesCore, subset, update, generate_showvalues, generate
 using BaytesCore:
@@ -23,7 +23,7 @@ using Random: Random, AbstractRNG, GLOBAL_RNG
 
 #!NOTE: These libraries are relevant for transform part
 using ChainRulesCore
-using LinearAlgebra: LinearAlgebra, Diagonal, LowerTriangular, tril!, diag, issymmetric
+using LinearAlgebra: LinearAlgebra, Factorization, Cholesky, Diagonal, LowerTriangular, tril!, diag, issymmetric
 using Distributions: Distributions, Distribution, logpdf
 using Bijectors:
     Bijectors, Bijector, logpdf_with_trans, transform,
@@ -36,6 +36,10 @@ const max_val = 1e+100
 "Smallest decrease allowed in the log objective results before tagged as divergent."
 const min_Δ = -1e+3
 
+function length_constrained end
+function length_unconstrained end
+
+
 ############################################################################################
 #Import
 include("Core/Core.jl")
@@ -46,6 +50,8 @@ include("Models/Models.jl")
 export
     UpdateBool,
     UpdateTrue,
-    UpdateFalse
+    UpdateFalse,
+    length_constrained,
+    length_unconstrained 
 
 end

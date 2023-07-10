@@ -63,7 +63,7 @@ end
 
 @testset "Objective - Log Objective AutoDiff compatibility - Base Model" begin
     _objective = obectiveBM
-    theta_unconstrained = randn(length(_objective))
+    theta_unconstrained = randn(length_unconstrained(_objective))
     _objective(theta_unconstrained)
 
     grad_mod_fd = ForwardDiff.gradient(_objective, theta_unconstrained)
@@ -248,9 +248,10 @@ function (objective::Objective{<:ModelWrapper{ExampleModel}})(θ::NamedTuple)
 end
 
 @testset "Objective - Log Objective AutoDiff compatibility - Vectorized Model" begin
-    length(objectiveExample)
+    length_constrained(objectiveExample)
+    length_unconstrained(objectiveExample)
     ModelWrappers.paramnames(objectiveExample)
-    theta_unconstrained = randn(length(modelExample))
+    theta_unconstrained = randn(length_unconstrained(modelExample))
     Objective(objectiveExample.model, objectiveExample.data, objectiveExample.tagged, objectiveExample.temperature)
     Objective(objectiveExample.model, objectiveExample.data, objectiveExample.tagged)
     Objective(objectiveExample.model, objectiveExample.data, keys(objectiveExample.tagged.parameter)[1:2])

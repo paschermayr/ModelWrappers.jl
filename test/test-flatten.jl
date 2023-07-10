@@ -7,7 +7,7 @@
     _params = merge(val_dist, val_dist_nested)
     ## Iterate trough all Params in TestHelper.jl file
     for sym in eachindex(_params)
-        # println(sym)
+        #println(sym)
         param = _params[sym]
         θ = _get_val(param)
         constraint = _get_constraint(param)
@@ -58,25 +58,31 @@
         @test typeof(θ) == typeof(θ_constrained)
         ## Type Check 3 - size of flatten(constrained) == flatten(unconstrained) for current Bijectors
         _θ_vec1 = _flatten(θ)
-        _θ_vec2 = _flatten(θ_unconstrained)
-        @test length(_θ_vec1) == length(_θ_vec2)
-        @test typeof(_unflatten(_θ_vec1)) == typeof(_unflatten(_θ_vec2))
+        
+        #Note: No longer valid as of Bijectors 0.13
+        #       _θ_vec2 = _flatten(θ_unconstrained)
+        #@test length(_θ_vec1) == length(_θ_vec2)
+        #@test typeof(_unflatten(_θ_vec1)) == typeof(_unflatten(_θ_vec2))
         ## If applicable, check if gradients for supported AD frameworks can be computed
         if length(θ_flat) > 0
+            reconstruct = ReConstructor(constraint, θ)
+            transform = TransformConstructor(constraint, θ)
+            info = ParameterInfo(FlattenDefault(), reconstruct, transform, θ)
+            θ_flat_unconstrained = unconstrain_flatten(info, θ)
             function check_AD_closure(constraint, val)
                 reconstruct = ReConstructor(constraint, val)
-                transformer = TransformConstructor(constraint, val)
+                transform = TransformConstructor(constraint, val)
+                info = ParameterInfo(FlattenDefault(), reconstruct, transform, val)
                 function check_AD(θₜ::AbstractVector{T}) where {T<:Real}
-                    θ_temp = unflattenAD(reconstruct, θₜ)
-                    θ = constrain(transformer, θ_temp)
+                    θ = unflattenAD_constrain(info, θₜ)
                     return log_prior(constraint, θ) + log_abs_det_jac(transformer, θ)
                 end
             end
             check_AD = check_AD_closure(constraint, θ)
-            check_AD(θ_flat)
-            grad_mod_fd = ForwardDiff.gradient(check_AD, θ_flat)
-            grad_mod_rd = ReverseDiff.gradient(check_AD, θ_flat)
-            grad_mod_zy = Zygote.gradient(check_AD, θ_flat)[1]
+            check_AD(θ_flat_unconstrained)
+            grad_mod_fd = ForwardDiff.gradient(check_AD, θ_flat_unconstrained)
+            grad_mod_rd = ReverseDiff.gradient(check_AD, θ_flat_unconstrained)
+            grad_mod_zy = Zygote.gradient(check_AD, θ_flat_unconstrained)[1]
             @test sum(abs.(grad_mod_fd - grad_mod_rd)) ≈ 0 atol = _TOL
             @test sum(abs.(grad_mod_fd - grad_mod_zy)) ≈ 0 atol = _TOL
         end
@@ -136,27 +142,31 @@ end
         θ_constrained = constrain(transformer, θ_unconstrained)
         @test typeof(θ) == typeof(θ_constrained)
         ## Type Check 3 - size of flatten(constrained) == flatten(unconstrained) for current Bijectors
-        _θ_vec1 = _flatten(θ)
-        _θ_vec2 = _flatten(θ_unconstrained)
-        @test length(_θ_vec1) == length(_θ_vec2)
-        @test typeof(_unflatten(_θ_vec1)) == typeof(_unflatten(_θ_vec2))
+#        _θ_vec1 = _flatten(θ)
+#        _θ_vec2 = _flatten(θ_unconstrained)
+#        @test length(_θ_vec1) == length(_θ_vec2)
+#        @test typeof(_unflatten(_θ_vec1)) == typeof(_unflatten(_θ_vec2))
         ## If applicable, check if gradients for supported AD frameworks can be computed
         if length(θ_flat) > 0
+            reconstruct = ReConstructor(constraint, θ)
+            transform = TransformConstructor(constraint, θ)
+            info = ParameterInfo(FlattenDefault(), reconstruct, transform, θ)
+            θ_flat_unconstrained = unconstrain_flatten(info, θ)
             function check_AD_closure(constraint, val)
                 reconstruct = ReConstructor(constraint, val)
-                transformer = TransformConstructor(constraint, val)
+                transform = TransformConstructor(constraint, val)
+                info = ParameterInfo(FlattenDefault(), reconstruct, transform, val)
                 function check_AD(θₜ::AbstractVector{T}) where {T<:Real}
-                    θ_temp = unflattenAD(reconstruct, θₜ)
-                    θ = constrain(transformer, θ_temp)
+                    θ = unflattenAD_constrain(info, θₜ)
                     return log_prior(constraint, θ) + log_abs_det_jac(transformer, θ)
                 end
             end
             check_AD = check_AD_closure(constraint, θ)
-            check_AD(θ_flat)
-            grad_mod_fd = ForwardDiff.gradient(check_AD, θ_flat)
-            grad_mod_rd = ReverseDiff.gradient(check_AD, θ_flat)
+            check_AD(θ_flat_unconstrained)
+            grad_mod_fd = ForwardDiff.gradient(check_AD, θ_flat_unconstrained)
+            grad_mod_rd = ReverseDiff.gradient(check_AD, θ_flat_unconstrained)
             #!NOTE: Zygote would just record "Nothing" as gradient for Fixed/Unconstrained without a functor
-            #grad_mod_zy = Zygote.gradient(check_AD, θ_flat)[1]
+            #grad_mod_zy = Zygote.gradient(check_AD, θ_flat_unconstrained)[1]
             @test sum(abs.(grad_mod_fd - grad_mod_rd)) ≈ 0 atol = _TOL
             #@test sum(abs.(grad_mod_fd - grad_mod_zy)) ≈ 0 atol = _TOL
         end

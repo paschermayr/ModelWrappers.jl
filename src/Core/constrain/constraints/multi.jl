@@ -21,7 +21,7 @@ Param(_rng::Random.AbstractRNG, constraint::D, val::B) where {D<:Vector{<:Array{
 
 ############################################################################################
 #=
-2. Define functions to unconstrain(constraint, val) to unconstrained domain valᵤ, and a function constrain(constraint, valᵤ) back to val.
+2.1 Define functions to unconstrain(constraint, val) to unconstrained domain valᵤ, and a function constrain(constraint, valᵤ) back to val.
 Dimensions of val and valᵤ should be the same, flattening will be handled separately.
 =#
 function unconstrain(multi::MultiConstraint, val)

@@ -19,7 +19,7 @@ Param(_rng::Random.AbstractRNG, constraint::A, val::B) where {A<:Distributions.D
 
 ############################################################################################
 #=
-2. Define functions to unconstrain(constraint, val) to unconstrained domain valᵤ, and a function constrain(constraint, valᵤ) back to val.
+2.1 Define functions to unconstrain(constraint, val) to unconstrained domain valᵤ, and a function constrain(constraint, valᵤ) back to val.
 Dimensions of val and valᵤ should be the same, flattening will be handled separately.
 =#
 function unconstrain(dist::DistributionConstraint, val)
@@ -50,20 +50,20 @@ end
 function _check(
     _rng::Random.AbstractRNG,
     d::DistributionConstraint,
-    val::Union{R,Array{R},AbstractArray},
+    val::Union{Factorization, R, Array{R}, AbstractArray},
 ) where {R<:Real}
     _val = rand(_rng, d.dist)
     return _check(_rng, d.bijection, val) && typeof(val) == typeof(_val) && size(val) == size(_val) ? true : false
 end
 
 ############################################################################################
-# 6. Optionally - Ignore non-specified distributions when flattening
+# 6.1 Optionally - Ignore non-specified distributions when flattening
 function construct_flatten(
     output::Type{T},
     flattentype::F,
     unflattentype::U,
     constraint::Distributions.Distribution,
-    x::Union{R,Array{R}},
+    x::Union{Factorization, R, Array{R}},
 ) where {
     T<:AbstractFloat,
     F<:FlattenTypes,
@@ -72,6 +72,8 @@ function construct_flatten(
 }
     return construct_flatten(T, flattentype, unflattentype, x)
 end
+
+# 6.2 Implement custom flattening behavior for Bijectors
 
 ############################################################################################
 # Additional functionality -- that is not considered for other AbstractConstraints -- to evaluate prior logdensities etc that make logposterior definitions easier.

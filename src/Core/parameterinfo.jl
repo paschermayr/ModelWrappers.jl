@@ -6,19 +6,29 @@ Contains information about parameter distributions, transformations and constrai
 # Fields
 $(TYPEDFIELDS)
 """
-struct ParameterInfo{R<:ReConstructor,T<:TransformConstructor}
+struct ParameterInfo{R<:ReConstructor, U<:ReConstructor, T<:TransformConstructor}
     "Contains information for flatten/unflatten parameter"
     reconstruct::R
+    "Contains information to reconstruct unconstrained parameter - important for non-bijective transformations"
+    reconstructᵤ::U
     "Contains information for constraining and unconstraining parameter."
     transform::T
     function ParameterInfo(
-        reconstruct::R, transform::T
-    ) where {R<:ReConstructor,T<:TransformConstructor}
-        return new{R, T}(
-            reconstruct, transform
+        reconstruct::R, reconstructᵤ::U, transform::T
+    ) where {R<:ReConstructor, U<:ReConstructor, T<:TransformConstructor}
+        return new{R, U, T}(
+            reconstruct, reconstructᵤ, transform
         )
     end
 end
+function ParameterInfo(flattendefault::D, constructor::R, transformer::T, val::V) where {D<:FlattenDefault, R<:ReConstructor, T<:TransformConstructor, V}
+    ## Construct flatten constructor for unconstrained parameterization - important for non-bijective transformations 
+    constructorᵤ = ReConstructor(flattendefault, transformer.constraint, unconstrain(transformer, val))
+    return ParameterInfo(
+        constructor, constructorᵤ, transformer
+    )
+end
+
 function ParameterInfo(
     flattendefault::D, constraint::C, val::B
 ) where {D<:FlattenDefault, C<:NamedTuple, B<:NamedTuple}
@@ -26,9 +36,11 @@ function ParameterInfo(
     constructor = ReConstructor(flattendefault, constraint, val)
     ## Assign transformer constraint NamedTuple
     transformer = TransformConstructor(constraint, val)
+    ## Construct flatten constructor for unconstrained parameterization - important for non-bijective transformations 
+    constructorᵤ = ReConstructor(flattendefault, constraint, unconstrain(transformer, val))
     ## Return ParameterInfo
     return ParameterInfo(
-        constructor, transformer
+        constructor, constructorᵤ, transformer
     )
 end
 function ParameterInfo(
@@ -39,29 +51,13 @@ function ParameterInfo(
     ## Split between values and constraints
     val = _get_val(parameter)
     constraint = _get_constraint(parameter)
-    ## Create flatten constructor
-    constructor = ReConstructor(flattendefault, constraint, val)
-    ## Assign transformer constraint NamedTuple
-    transformer = TransformConstructor(constraint, val)
-    ## Return ParameterInfo
     return ParameterInfo(
-        constructor, transformer
+        flattendefault, constraint, val
     )
 end
 
 ############################################################################################
 length(info::ParameterInfo) = info.reconstruct.unflatten.strict._unflatten.sz[end]
-
-############################################################################################
-function constrain(info::ParameterInfo, valᵤ::V) where {V}
-    return constrain(info.transform, valᵤ)
-end
-function unconstrain(info::ParameterInfo, val::V) where {V}
-    return unconstrain(info.transform, val)
-end
-function log_abs_det_jac(info::ParameterInfo, val::V) where {V}
-    return log_abs_det_jac(info.transform, val)
-end
 
 ############################################################################################
 function flatten(info::ParameterInfo, x)
@@ -78,5 +74,31 @@ function unflattenAD(info::ParameterInfo, x)
 end
 
 ############################################################################################
+function constrain(info::ParameterInfo, valᵤ::V) where {V}
+    return constrain(info.transform, valᵤ)
+end
+function unconstrain(info::ParameterInfo, val::V) where {V}
+    return unconstrain(info.transform, val)
+end
+function log_abs_det_jac(info::ParameterInfo, val::V) where {V}
+    return log_abs_det_jac(info.transform, val)
+end
+
+function unconstrain_flatten(info::ParameterInfo, val::V) where {V}
+    return flatten(info.reconstructᵤ, unconstrain(info.transform, val))
+end
+function unconstrain_flattenAD(info::ParameterInfo, val::V) where {V}
+    return flattenAD(info.reconstructᵤ, unconstrain(info.transform, val))
+end
+
+function unflatten_constrain(info::ParameterInfo, valᵤ::V) where {V}
+    return constrain(info.transform, unflatten(info.reconstructᵤ, valᵤ))
+end
+function unflattenAD_constrain(info::ParameterInfo, valᵤ::V) where {V}
+    return constrain(info.transform, unflattenAD(info.reconstructᵤ, valᵤ))
+end
+
+############################################################################################
 #export
 export ParameterInfo
+

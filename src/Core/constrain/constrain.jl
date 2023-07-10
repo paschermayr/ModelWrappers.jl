@@ -1,17 +1,5 @@
 ############################################################################################
 #!NOTE: These are abstract super types needed if additional constraints are added to ModelWrappers.
-"""
-$(TYPEDEF)
-Abstract super type for parameter constraints.
-"""
-abstract type AbstractConstraint end
-
-"Constrain `val` with given `constraint`"
-function constrain(constraint::AbstractConstraint, val) end
-
-"Unconstrain `val` with given `constraint`"
-function unconstrain(constraint::AbstractConstraint, val) end
-
 "Compute log(abs(determinant(jacobian(`x`)))) for given transformer to unconstrained (!) domain."
 function log_abs_det_jac end
 

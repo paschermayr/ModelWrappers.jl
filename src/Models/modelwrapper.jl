@@ -55,7 +55,9 @@ ModelWrapper(parameter::A, arg::C=(;), flattendefault::F=FlattenDefault()) where
 
 ############################################################################################
 # Basic functions for Model struct
-length(model::ModelWrapper) = model.info.reconstruct.unflatten.strict._unflatten.sz[end]
+length_constrained(model::ModelWrapper) = model.info.reconstruct.unflatten.strict._unflatten.sz[end]
+length_unconstrained(model::ModelWrapper) = model.info.reconstructᵤ.unflatten.strict._unflatten.sz[end]
+
 paramnames(model::ModelWrapper) = keys(model.val)
 
 ############################################################################################
@@ -136,6 +138,19 @@ end
 
 """
 $(SIGNATURES)
+Constrain 'θᵤ' values with model.info ParameterInfo.
+
+# Examples
+```julia
+```
+
+"""
+function constrain(model::ModelWrapper, θ::NamedTuple)
+    return constrain(model.info, θ)
+end
+
+"""
+$(SIGNATURES)
 Flatten 'model' values and return as vector.
 
 # Examples
@@ -157,7 +172,10 @@ Flatten and unconstrain 'model' values and return as vector.
 
 """
 function unconstrain_flatten(model::ModelWrapper)
-    return flatten(model.info, unconstrain(model))
+    return unconstrain_flatten(model.info, model.val)
+end
+function unconstrain_flattenAD(model::ModelWrapper)
+    return unconstrain_flattenAD(model.info, model.val)
 end
 
 #########################################
@@ -198,7 +216,10 @@ Constrain and Unflatten vector 'θᵤ' given 'model' constraints.
 
 """
 function unflatten_constrain(model::ModelWrapper, θᵤ::AbstractVector{T}) where {T<:Real}
-    return constrain(model.info, unflatten(model, θᵤ))
+    return unflatten_constrain(model.info, θᵤ)
+end
+function unflattenAD_constrain(model::ModelWrapper, θᵤ::AbstractVector{T}) where {T<:Real}
+    return unflattenAD_constrain(model.info, θᵤ)
 end
 
 """
@@ -317,7 +338,8 @@ export
     BaseModel,
     ModelWrapper,
     simulate,
-    length,
+    length_constrained,
+    length_unconstrained,
     paramnames,
     fill,
     fill!,

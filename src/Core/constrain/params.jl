@@ -12,7 +12,7 @@ function check_constraint(constraint::AbstractConstraint, val::V) where {V}
     valᵤ = unconstrain(constraint, val)
     #Constrain to original domain and compare vals
     valₒ = constrain(constraint, valᵤ)
-    _check = val ≈ valₒ
+    _check = Base.isapprox(val, valₒ)
     return _check
 end
 

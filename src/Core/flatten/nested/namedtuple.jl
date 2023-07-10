@@ -84,18 +84,7 @@ function _check(
 ) where {names1, names2}
     return _check(_rng, values(constraint), values(x))
 end
-#=
-############################################################################################
-function construct_transform(
-    constraint::NamedTuple{names1},
-    x::NamedTuple{names2}
-) where {names1, names2}
-## Obtain transform/inversetransform constructor for each element
-    _transform, _inversetransform = construct_transform(values(constraint), values(x))
-## Return flatten/unflatten for AbstractArray
-    return NamedTuple{names1}(_transform), NamedTuple{names1}(_inversetransform)
-end
-=#
+
 ############################################################################################
 function constrain(
     constraint::NamedTuple{names1},

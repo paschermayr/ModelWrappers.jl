@@ -36,7 +36,9 @@ end
 
 ############################################################################################
 # Basic functions for Tagged struct
-length(tagged::Tagged) = tagged.info.reconstruct.unflatten.strict._unflatten.sz[end]
+length_constrained(tagged::Tagged) = tagged.info.reconstruct.unflatten.strict._unflatten.sz[end]
+length_unconstrained(tagged::Tagged) = tagged.info.reconstructᵤ.unflatten.strict._unflatten.sz[end]
+
 paramnames(tagged::Tagged) = keys(tagged.parameter)
 
 #A convenient method for evaluating a prior distribution of a NamedTuple parameter
@@ -66,11 +68,29 @@ end
 function unconstrain(model::ModelWrapper, tagged::Tagged)
     return unconstrain(tagged.info, subset(model, tagged))
 end
+
+"""
+$(SIGNATURES)
+Constrain 'θᵤ' values with tagged.info ParameterInfo.
+
+# Examples
+```julia
+```
+
+"""
+function constrain(model::ModelWrapper, tagged::Tagged, θ::NamedTuple)
+    return constrain(tagged.info, θ)
+end
+
 function flatten(model::ModelWrapper, tagged::Tagged)
     return flatten(tagged.info, subset(model, tagged))
 end
+
 function unconstrain_flatten(model::ModelWrapper, tagged::Tagged)
-    return flatten(tagged.info, unconstrain(model, tagged))
+    return unconstrain_flatten(tagged.info, subset(model, tagged))
+end
+function unconstrain_flattenAD(model::ModelWrapper, tagged::Tagged)
+    return unconstrain_flattenAD(tagged.info, subset(model, tagged))
 end
 
 #########################################
@@ -85,10 +105,16 @@ function unflatten!(
     model.val = merge(model.val, unflatten(model, tagged, θ))
     return nothing
 end
+
 function unflatten_constrain(
     model::ModelWrapper, tagged::Tagged, θᵤ::AbstractVector{T}
 ) where {T<:Real}
-    return constrain(tagged.info, unflatten(model, tagged, θᵤ))
+    return unflatten_constrain(tagged.info, θᵤ)
+end
+function unflattenAD_constrain(
+    model::ModelWrapper, tagged::Tagged, θᵤ::AbstractVector{T}
+) where {T<:Real}
+    return unflattenAD_constrain(tagged.info, θᵤ)
 end
 function unflatten_constrain!(
     model::ModelWrapper, tagged::Tagged, θᵤ::AbstractVector{T}
@@ -127,7 +153,6 @@ end
 
 ############################################################################################
 export Tagged,
-    length,
     fill,
     fill!,
     subset,

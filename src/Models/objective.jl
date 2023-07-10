@@ -40,7 +40,10 @@ end
 
 ############################################################################################
 # Basic functions for Model struct
-length(objective::Objective) = length(objective.tagged)
+length_constrained(objective::Objective) = length_constrained(objective.tagged)
+length_unconstrained(objective::Objective) = length_unconstrained(objective.tagged)
+
+
 paramnames(objective::Objective) = paramnames(objective.tagged)
 
 ############################################################################################
@@ -123,7 +126,7 @@ function (objective::Objective)(θᵤ::AbstractVector{T}, arg::A = objective.mod
     @unpack model, tagged, temperature = objective
     ## Convert vector θᵤ back to constrained space as NamedTuple
     #!NOTE: This allocates new NamedTuple only once - using a constrain!(buffer, ...) does not improve performance wrt allocations
-    θ = constrain(tagged.info, unflattenAD(tagged.info, θᵤ))
+    θ = unflattenAD_constrain(tagged.info, θᵤ)
     #!NOTE: There are border cases where θᵤ is still finite, but θ no longer after transformation, so have to cover this separately
     _checkfinite(θ) || return -Inf
     ## logabsdet_jac for transformations

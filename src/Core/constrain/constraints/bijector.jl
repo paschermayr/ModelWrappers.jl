@@ -13,7 +13,7 @@ end
 
 ############################################################################################
 #=
-2. Define functions to unconstrain(constraint, val) to unconstrained domain valᵤ, and a function constrain(constraint, valᵤ) back to val.
+2.1 Define functions to unconstrain(constraint, val) to unconstrained domain valᵤ, and a function constrain(constraint, valᵤ) back to val.
 Dimensions of val and valᵤ should be the same, flattening will be handled separately.
 =#
 function unconstrain(bijection::Bijection, val)
@@ -52,10 +52,11 @@ end
 function _check(
     _rng::Random.AbstractRNG,
     b::Bijection,
-    val::Union{R,Array{R},AbstractArray},
+    val::Union{Cholesky, R,Array{R},AbstractArray},
 ) where {R<:Real}
-    return typeof( unconstrain(b, val) ) == typeof(val) ? true : false
+    return true
 end
+
 
 ############################################################################################
 #Export

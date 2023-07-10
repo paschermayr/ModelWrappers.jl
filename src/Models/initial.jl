@@ -43,7 +43,7 @@ function sample(_rng::Random.AbstractRNG, initialization::PriorInitialization, k
     while !isfinite(ℓθᵤ) && counter <= Ntrials
         counter += 1
         θ = sample(_rng, objective.model, objective.tagged)
-        ℓθᵤ = objective(flatten(objective.model.info.reconstruct, unconstrain(objective.model.info.transform, θ)))
+        ℓθᵤ = objective( unconstrain_flatten(objective.model.info, θ) )
     end
     ArgCheck.@argcheck counter <= Ntrials "Could not find initial parameter with finite log target density. Adjust intial values, prior, or increase number of intial samples."
     return θ

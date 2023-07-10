@@ -83,21 +83,7 @@ function _check(
             end
     )
 end
-#=
-############################################################################################
-function construct_transform(
-    constraint::Tuple,
-    x::Tuple
-)
-## Obtain transform/inversetransform constructor for each element
-    x_transforms = map(x, constraint) do xᵢ, constraintᵢ
-        construct_transform(constraintᵢ, xᵢ)
-    end
-    _transform, _inversetransform = first.(x_transforms), last.(x_transforms)
-## Return flatten/unflatten for AbstractArray
-    return _transform, _inversetransform
-end
-=#
+
 ############################################################################################
 function constrain(
     constraint::Tuple,
