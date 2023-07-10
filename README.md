@@ -85,7 +85,6 @@ Note that providing a distribution from 'Distributions.jl' in `Param` will just 
 3. a `Fixed` struct, which keeps `val` fixed and excludes it from flatten/unflatten,
 4. an `Unconstrained` struct, which flattens `val` without taking into account any constraint,
 5. and a `Constrained` struct, which flattens `val` without taking into account any constraint, but will take into account the constraints when constraining values.
-6. some constraint that may be able to map `val` into a lower dimension. This includes a `Simplex`, `CovarianceMatrix` and `CorrelationMatrix` constraint.
 ```julia
 
 using Bijectors
@@ -97,13 +96,9 @@ myparameter_constraints = (
     buffer2 = Param(Unconstrained(), [zeros(10), zeros(20)], ),
     buffer3 = Param(Constrained(1., 5.), 3., ),
 
-    #Mapped to lower dimensions
-    p = Param(Simplex(3), [.2, .3, .5]),
-    ρ = Param(CorrelationMatrix(), [1. .3 ; .3 1.]),
-    Σ = Param(CovarianceMatrix(), [5. .4 ; .4 6.]),
 )
 model_constraints = ModelWrapper(myparameter_constraints)
-flatten(model_constraints) #Vector{Float64} with 39 elements
+flatten(model_constraints) #Vector{Float64}
 ```
 
 A `ModelWrapper` struct is mutable, and contains the values of your `NamedTuple` field. Values can be flattened or unconstrained, and may be updated by new values/samples. Also, when a `ModelWrapper` struct is created, an unflatten function for strict and variable type conversion is stored. To show this, we will a create `ModelWrapper` struct, flatten its values, and update the struct with new values:
@@ -171,33 +166,7 @@ grad_rvd = ReverseDiff.gradient(myobjective, θ_proposed)
 grad_zyg = Zygote.gradient(myobjective, θ_proposed)
 all(grad_fwd .≈ grad_rvd .≈ grad_zyg[1]) #true
 ```
-<!---
 
-## Using Soss.jl with ModelWrappers.jl (Experimental)
-
-Instead of manually definining parameter distributions and a target function, ModelWrappers.jl can be used with Soss.jl to obtain all information from a Soss `@model`:
-
-```julia
-using Soss
-m = @model n begin
-    μ ~ Distributions.Normal()
-    σ ~ Distributions.Gamma()
-    data ~ Distributions.Normal(μ, σ) |> iid(n)
-    return (; data)
-end
-posterior =  m((μ = 0.0, σ = 1.0, n = length(data))) | (data = data,)
-model_soss = ModelWrapper(posterior)
-objective_soss = Objective(model_soss)
-
-grad_fwd_soss = ForwardDiff.gradient(objective_soss, θ_proposed)
-grad_rvd_soss = ReverseDiff.gradient(objective_soss, θ_proposed)
-grad_zyg_soss = Zygote.gradient(objective_soss, θ_proposed)
-all(grad_fwd_soss .≈ grad_rvd_soss .≈ grad_zyg_soss[1]) #true
-
-objective_soss(mymodel.val) ≈ myobjective(mymodel.val) #true
-all(grad_fwd .≈ grad_rvd .≈ grad_zyg[1] .≈ grad_fwd_soss .≈ grad_rvd_soss .≈ grad_zyg_soss[1]) #true
-```
--->
 ## Going Forward
 
 This package is still highly experimental - suggestions and comments are always welcome! New constraints should be reasonable simple to add, check out `src/Core/constrain/constraints/constrained.jl` as an example with guidance in the comments.
