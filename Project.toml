@@ -1,7 +1,7 @@
 name = "ModelWrappers"
 uuid = "44c54197-9f56-47cc-9960-7f2e20bfb0d6"
 authors = ["Patrick Aschermayr <p.aschermayr@gmail.com>"]
-version = "0.5.0"
+version = "0.5.1"
 
 [deps]
 ArgCheck = "dce04be8-c92d-5529-be00-80e4d2c0e197"
