@@ -33,6 +33,9 @@ end
 function _checkfinite(θ::N, max_val::R=max_val) where {N<:NamedTuple} where {R<:Real}
     return all(map(_checkfinite, values(θ)))
 end
+function _checkfinite(chol::Cholesky)
+    return _checkfinite(chol.factors)
+end
 
 ############################################################################################
 """
