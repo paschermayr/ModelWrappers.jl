@@ -57,7 +57,9 @@ function ParameterInfo(
 end
 
 ############################################################################################
-length(info::ParameterInfo) = info.reconstruct.unflatten.strict._unflatten.sz[end]
+length_constrained(info::ParameterInfo) = info.reconstruct.unflatten.strict._unflatten.sz[end]
+length_unconstrained(info::ParameterInfo) = info.reconstructᵤ.unflatten.strict._unflatten.sz[end]
+
 
 ############################################################################################
 function flatten(info::ParameterInfo, x)

@@ -30,8 +30,11 @@ _params = [sample(_modelProb, _targets[iter]) for iter in eachindex(_syms)]
 #        @test length(val_unflat) == length(_model_temp.val)
     
         val_unconstrained = unconstrain(_model_temp, _target)
-    
+        constrain(_model_temp, _target, val_unconstrained)
+
+
         val_flat_unconstrained = unconstrain_flatten(_model_temp, _target)
+        unconstrain_flattenAD(_model_temp, _target)
         val_unflat_constrained = unflatten_constrain(_model_temp, _target, val_flat_unconstrained)
         @test length(val_unflat_constrained) == length(_model_temp.val)
 

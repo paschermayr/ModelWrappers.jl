@@ -2,6 +2,10 @@
 # Basic Functionality
 _modelProb = ModelWrapper(ProbModel(), val_dist)
 @testset "Models - basic functionality" begin
+    
+    @test length_constrained(_modelProb) == length_constrained(_modelProb.info)
+    @test length_unconstrained(_modelProb) == length_unconstrained(_modelProb.info)
+    
     ## Type Check 1 - Constrain/Unconstrain
     length_constrained(_modelProb)
     length_unconstrained(_modelProb)
@@ -18,6 +22,7 @@ _modelProb = ModelWrapper(ProbModel(), val_dist)
     val_flat_unconstrained = unconstrain_flatten(_modelProb)
     val_unflat_constrained = unflatten_constrain(_modelProb, val_flat_unconstrained)
     @test length(val_unflat_constrained) == length(_modelProb.val)
+    unflattenAD_constrain(_modelProb, val_flat_unconstrained)
 
     ## Check if densities match
     @test log_prior(_modelProb) + log_abs_det_jac(_modelProb) ≈
@@ -27,6 +32,8 @@ _modelProb = ModelWrapper(ProbModel(), val_dist)
     unconstrain(_modelProb)
     flatten(_modelProb)
     unconstrain_flatten(_modelProb)
+    unconstrain_flattenAD(_modelProb)
+
     fill(_modelProb, _modelProb.val)
     fill!(_modelProb, _modelProb.val)
     subset(_modelProb, keys(_modelProb.val))
@@ -36,6 +43,11 @@ _modelProb = ModelWrapper(ProbModel(), val_dist)
     sample(_modelProb)
     sample!(_RNG, _modelProb)
     sample!(_modelProb)
+
+    #Explore Initialization patterns:
+    PriorInitialization()
+    OptimInitialization()
+
 end
 
 ############################################################################################
