@@ -130,8 +130,15 @@ function (objective::Objective)(θᵤ::AbstractVector{T}, arg::A = objective.mod
     #!NOTE: There are border cases where θᵤ is still finite, but θ no longer after transformation, so have to cover this separately
     _checkfinite(θ) || return -Inf
     ## logabsdet_jac for transformations
-    ℓjac = log_abs_det_jac(tagged.info, θ)
+        #!NOTE: Some cornercases where DiffResults wrapper does not interact properly with logabsdetjac from Bijectors - trycatch should alleviate that without allocation costs
+    ℓjac = try
+        log_abs_det_jac(tagged.info, θ)
+    catch
+        -Inf
+    end
+#    ℓjac = log_abs_det_jac(tagged.info, θ)
     _checkfinite(ℓjac) || return -Inf
+    
     ## Evaluate objective
     ℓℒ = objective(merge(model.val, θ), arg, data)
     ## Return log posterior
