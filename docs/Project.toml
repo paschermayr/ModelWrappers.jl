@@ -1,3 +1,6 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 ModelWrappers = "44c54197-9f56-47cc-9960-7f2e20bfb0d6"
+
+[compat]
+Documenter = "1"
