@@ -34,7 +34,9 @@ function _checkfinite(θ::N, max_val::R=max_val) where {N<:NamedTuple} where {R<
     return all(map(_checkfinite, values(θ)))
 end
 function _checkfinite(chol::Cholesky, max_val::R=max_val) where {R<:Real}
-    return _checkfinite(chol.factors, max_val)
+    #!NOTE sampling from Cholesky often fills upper diagonal elements to very large/small numbers - ignore these when checking for finiteness
+    #tril!(chol.factors, 0) == Set all upper-triangular elements to 0
+    return _checkfinite( tril!(chol.factors, 0), max_val)
 end
 
 ############################################################################################

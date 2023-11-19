@@ -491,7 +491,8 @@ end
             flatdefault = FlattenDefault(; output = output, flattentype = flattentype)
             _dist = LKJCholesky(3,1)
             constraint = Bijection( Bijectors.bijector(_dist) )
-            val = rand(Random.Xoshiro(12345), _dist)
+            val = rand(_RNG, _dist)
+            tril!(val.factors, 0)
 
             @test ModelWrappers._checkfinite(val)
 

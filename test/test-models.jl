@@ -85,9 +85,14 @@ end
 
 ############################################################################################
 struct NonBijectModel <: ModelName end
+
+lkj_d = LKJCholesky(3,1)
+lkj_val = rand(LKJCholesky(3,1))
+tril!(lkj_val.factors, 0)
+
 val_nonbjiject = (
     a=Param(LKJ(3,1), rand(LKJ(3,1))),
-    b=Param(LKJCholesky(3,1), rand(LKJCholesky(3,1))), 
+    b=Param(lkj_d, lkj_val), 
     c=Param(InverseWishart(10, [3. .1 ; .1 2.]), rand(InverseWishart(10, [3. .1 ; .1 2.]))),
     d=Param(Dirichlet(3,3), [.1, .2, .7]), 
 )
@@ -120,3 +125,5 @@ _tagged = Tagged(_modelExample)
     fill(_modelExample, _tagged, _modelExample.val)
     fill!(_modelExample, _tagged, _modelExample.val)
 end
+
+
