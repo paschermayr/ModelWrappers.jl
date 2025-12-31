@@ -1,5 +1,36 @@
-*.jl.*.cov
+# .gitignore file for Julia packages - add Manifest.toml to gitignore so users resolve dependencies themselves
+# Coverage and memory files
 *.jl.cov
+*.jl.*.cov
 *.jl.mem
-/Manifest.toml
-/docs/build/
+
+# Build artifacts
+deps/deps.jl
+deps/usr/
+deps/build.log
+
+# Manifest - let users generate their own
+Manifest.toml
+/docs/Manifest.toml
+/test/Manifest.toml
+
+# Documentation
+docs/build/
+docs/_site/
+docs/.jekyll-cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Temporary
+tmp/
+*.orig
+.ipynb_checkpoints/
+
+# Binaries
+*.so
+*.dll
+*.dylib

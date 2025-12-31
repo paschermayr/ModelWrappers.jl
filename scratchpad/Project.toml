@@ -1,0 +1,6 @@
+[deps]
+BaytesCore = "e5a8efeb-54cd-4583-bf9c-87b09970f7ba"
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+ModelWrappers = "44c54197-9f56-47cc-9960-7f2e20bfb0d6"
+UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
